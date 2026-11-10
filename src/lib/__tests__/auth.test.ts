@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authenticateUser, validateAndCreateUser } from "../auth";
+import { authenticateUser, validateAndCreateUser, resetUserPasswordHelper, DEFAULT_INITIAL_PASSWORD } from "../auth";
 import { User } from "@/types";
 
 const mockUsers: User[] = [
@@ -63,6 +63,38 @@ describe("認証・アカウント管理ロジック (authenticateUser / validat
 
     expect(result.success).toBe(false);
     expect(result.message).toContain("既に使用されています");
+  });
+
+  describe("管理者によるパスワードリセット (resetUserPasswordHelper)", () => {
+    it("UT-AUTH-07: 管理者が対象ユーザーのパスワードを初期値（password123）にリセットできる", () => {
+      const adminUser = mockUsers[0];
+      const result = resetUserPasswordHelper(adminUser, mockUsers, "misaki");
+      expect(result.success).toBe(true);
+      const updatedMisaki = result.updatedUsers?.find((u) => u.id === "misaki");
+      expect(updatedMisaki?.password).toBe(DEFAULT_INITIAL_PASSWORD);
+    });
+
+    it("UT-AUTH-08: 一般メンバーは他人のパスワードをリセットできない", () => {
+      const generalUser = mockUsers[1];
+      const result = resetUserPasswordHelper(generalUser, mockUsers, "ken");
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("管理者権限がありません");
+    });
+
+    it("UT-AUTH-09: 存在しないユーザーのリセットを試みた場合はエラーとなる", () => {
+      const adminUser = mockUsers[0];
+      const result = resetUserPasswordHelper(adminUser, mockUsers, "unknown_user");
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("対象のアカウントが見つかりません");
+    });
+
+    it("UT-AUTH-10: 指定した新パスワードにリセットできる", () => {
+      const adminUser = mockUsers[0];
+      const result = resetUserPasswordHelper(adminUser, mockUsers, "misaki", "tempPass456");
+      expect(result.success).toBe(true);
+      const updatedMisaki = result.updatedUsers?.find((u) => u.id === "misaki");
+      expect(updatedMisaki?.password).toBe("tempPass456");
+    });
   });
 });
 

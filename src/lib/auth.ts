@@ -69,3 +69,35 @@ export function validateAndCreateUser(
   return { success: true, createdUser };
 }
 
+export const DEFAULT_INITIAL_PASSWORD = "password123";
+
+/**
+ * 管理者によるメンバーのパスワードリセット処理を行う純粋関数
+ */
+export function resetUserPasswordHelper(
+  currentUser: User | null,
+  users: User[],
+  targetUserId: string,
+  newPassword = DEFAULT_INITIAL_PASSWORD
+): { success: boolean; message?: string; updatedUsers?: User[] } {
+  if (!currentUser?.isAdmin) {
+    return { success: false, message: "パスワードをリセットする管理者権限がありません。" };
+  }
+
+  const target = users.find((u) => u.id === targetUserId);
+  if (!target) {
+    return { success: false, message: "対象のアカウントが見つかりません。" };
+  }
+
+  if (!newPassword || !newPassword.trim()) {
+    return { success: false, message: "有効なリセット後パスワードを指定してください。" };
+  }
+
+  const updatedUsers = users.map((u) =>
+    u.id === targetUserId ? { ...u, password: newPassword.trim() } : u
+  );
+
+  return { success: true, updatedUsers };
+}
+
+

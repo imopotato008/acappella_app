@@ -12,7 +12,7 @@ import {
   User,
 } from "@/types";
 import { aggregateResponses } from "@/lib/aggregation";
-import { authenticateUser, validateAndCreateUser } from "@/lib/auth";
+import { authenticateUser, validateAndCreateUser, resetUserPasswordHelper, DEFAULT_INITIAL_PASSWORD } from "@/lib/auth";
 import { canManageLocation, validateLocation } from "@/lib/location";
 import { toggleVote } from "@/lib/voting";
 import { supabase } from "@/lib/supabase";
@@ -36,6 +36,7 @@ interface AppContextType {
     bio?: string;
     isAdmin?: boolean;
   }) => { success: boolean; message?: string };
+  resetUserPassword: (targetUserId: string, newPassword?: string) => { success: boolean; message?: string };
 
   createEvent: (event: Omit<Event, "id" | "createdAt" | "status">) => Event;
   updateEventStatus: (
@@ -354,6 +355,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       .then();
 
     return { success: true };
+  };
+
+  // 管理者によるパスワードリセット
+  const resetUserPassword = (
+    targetUserId: string,
+    newPassword = DEFAULT_INITIAL_PASSWORD
+  ): { success: boolean; message?: string } => {
+    const res = resetUserPasswordHelper(currentUser, users, targetUserId, newPassword);
+    if (!res.success || !res.updatedUsers) {
+      return { success: false, message: res.message };
+    }
+
+    setUsers(res.updatedUsers);
+
+    // Supabase に非同期保存
+    supabase
+      .from("users")
+      .update({ password: newPassword.trim() })
+      .eq("id", targetUserId)
+      .then();
+
+    return { success: true, message: `パスワードを「${newPassword}」にリセットしました。` };
   };
 
   // 新規イベント作成
@@ -709,6 +732,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         logout,
         updateProfile,
         createUser,
+        resetUserPassword,
         createEvent,
         updateEventStatus,
         updateVotingDeadline,

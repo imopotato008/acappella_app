@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 export default function AdminUsersPage() {
-  const { currentUser, users, createUser } = useApp();
+  const { currentUser, users, createUser, resetUserPassword } = useApp();
 
   const [id, setId] = useState("");
   const [password, setPassword] = useState("password123");
@@ -78,6 +78,18 @@ export default function AdminUsersPage() {
       }, 5000);
     } else {
       setMessage({ type: "error", text: result.message || "登録に失敗しました。" });
+    }
+  };
+
+  const handleResetPassword = (userId: string, userNickname: string) => {
+    if (confirm(`「${userNickname}」さんのパスワードを初期値「password123」にリセットしますか？\n（本人がログイン後に再変更できます）`)) {
+      const res = resetUserPassword(userId, "password123");
+      if (res.success) {
+        setMessage({ type: "success", text: `「${userNickname}」さんのパスワードを「password123」にリセットしました。` });
+        setTimeout(() => setMessage(null), 5000);
+      } else {
+        setMessage({ type: "error", text: res.message || "リセットに失敗しました。" });
+      }
     }
   };
 
@@ -242,54 +254,66 @@ export default function AdminUsersPage() {
       )}
 
       {/* 登録済みメンバー一覧 */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-xs p-6 space-y-4">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 space-y-4 transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 pb-1">
           <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-indigo-600 shrink-0" />
-            <h2 className="font-bold text-base text-slate-900">
+            <Users className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+            <h2 className="font-bold text-base text-slate-900 dark:text-slate-100">
               登録済みメンバーアカウント ({users.length}名)
             </h2>
           </div>
           <span className="text-[11px] text-slate-400">外部からの新規登録は遮断されています</span>
         </div>
 
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-slate-100 dark:divide-slate-800">
           {users.map((u) => (
             <div key={u.id} className="py-3.5 flex items-center justify-between gap-2">
               <div className="flex items-start sm:items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-sm text-slate-700 shrink-0 mt-0.5 sm:mt-0">
+                <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-sm text-slate-700 dark:text-slate-200 shrink-0 mt-0.5 sm:mt-0">
                   {u.nickname.slice(0, 1)}
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-sm text-slate-900 whitespace-nowrap">{u.nickname}</span>
-                    <span className="text-xs font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 whitespace-nowrap">
+                    <span className="font-bold text-sm text-slate-900 dark:text-slate-100 whitespace-nowrap">{u.nickname}</span>
+                    <span className="text-xs font-mono text-slate-400 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-100 dark:border-slate-700 whitespace-nowrap">
                       ID: {u.id}
                     </span>
                     {(u.isAdmin || u.id === currentUser.id) && (
                       <div className="flex flex-col sm:flex-row gap-1 items-start sm:items-center shrink-0">
                         {u.isAdmin && (
-                          <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 whitespace-nowrap">
-                            <ShieldCheck className="w-3 h-3 text-amber-700 shrink-0" />
+                          <span className="text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 whitespace-nowrap">
+                            <ShieldCheck className="w-3 h-3 text-amber-700 dark:text-amber-400 shrink-0" />
                             管理者
                           </span>
                         )}
                         {u.id === currentUser.id && (
-                          <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
+                          <span className="text-[10px] bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
                             あなた
                           </span>
                         )}
                       </div>
                     )}
                   </div>
-                  {u.bio && <p className="text-xs text-slate-500 mt-1 line-clamp-2">{u.bio}</p>}
+                  {u.bio && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{u.bio}</p>}
                 </div>
               </div>
 
-              <div className="text-right shrink-0">
-                <span className="text-[10px] sm:text-[11px] text-slate-400 block font-mono whitespace-nowrap">
-                  パスワード: ••••••••
-                </span>
+              <div className="flex items-center gap-2 shrink-0">
+                {u.password === "password123" && (
+                  <span className="hidden sm:inline-block text-[10px] text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 px-1.5 py-0.5 rounded font-mono">
+                    初期PW
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleResetPassword(u.id, u.nickname)}
+                  title="パスワードを初期値（password123）にリセット"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-amber-300 dark:hover:border-amber-600 bg-slate-50 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-slate-600 dark:text-slate-300 hover:text-amber-800 dark:hover:text-amber-200 text-xs font-semibold transition-colors"
+                >
+                  <KeyRound className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  <span className="hidden sm:inline">PWリセット</span>
+                  <span className="sm:hidden">リセット</span>
+                </button>
               </div>
             </div>
           ))}

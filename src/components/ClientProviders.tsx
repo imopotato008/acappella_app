@@ -2,6 +2,7 @@
 
 import React from "react";
 import { AppProvider, useApp } from "@/context/AppContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { Header } from "@/components/Header";
 import { LoginForm } from "@/components/LoginForm";
 
@@ -22,8 +23,10 @@ function AuthContent({ children }: { children: React.ReactNode }) {
 
 export function ClientProviders({ children }: { children: React.ReactNode }) {
   return (
-    <AppProvider>
-      <AuthContent>{children}</AuthContent>
-    </AppProvider>
+    <ThemeProvider>
+      <AppProvider>
+        <AuthContent>{children}</AuthContent>
+      </AppProvider>
+    </ThemeProvider>
   );
 }
