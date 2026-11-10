@@ -137,19 +137,21 @@ export function Header() {
                 {/* プロフィール設定リンク */}
                 <Link
                   href="/profile"
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors ${pathname === "/profile"
+                  className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border text-xs font-semibold transition-colors ${pathname === "/profile"
                     ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800"
                     : "bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700"
                     }`}
                 >
-                  <UserCheck className="flex-col sm:flex-row w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                  <span>{currentUser.nickname}</span>
-                  {currentUser.isAdmin && (
-                    <span className="text-[10px] bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-1 rounded font-bold">
-                      管理者
-                    </span>
-                  )}
-                  <Settings className="w-3 h-3 text-slate-400 ml-0.5" />
+                  <UserCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-1.5 leading-tight text-left">
+                    <span className="whitespace-nowrap">{currentUser.nickname}</span>
+                    {currentUser.isAdmin && (
+                      <span className="text-[9px] sm:text-[10px] bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-1 rounded font-bold self-start sm:self-auto leading-none py-0.5 mt-0.5 sm:mt-0 whitespace-nowrap">
+                        管理者
+                      </span>
+                    )}
+                  </div>
+                  <Settings className="w-3 h-3 text-slate-400 shrink-0 ml-0.5" />
                 </Link>
 
                 {/* アカウント切り替え（ログアウトしてダッシュボード/へ遷移） */}
