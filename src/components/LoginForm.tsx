@@ -1,0 +1,149 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useApp } from "@/context/AppContext";
+import { Lock, LogIn, Music, ShieldCheck, Sparkles, User as UserIcon } from "lucide-react";
+
+export function LoginForm() {
+  const router = useRouter();
+  const { login, users } = useApp();
+  const [id, setId] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (!id.trim() || !password) {
+      setError("IDとパスワードを入力してください。");
+      return;
+    }
+
+    const result = login(id.trim(), password);
+    if (!result.success) {
+      setError(result.message || "ログインに失敗しました。");
+    } else {
+      // ログイン後は必ずダッシュボードへ遷移
+      window.location.href = "/";
+    }
+  };
+
+  // テスト用クイック選択
+  const handleQuickSelect = (userId: string) => {
+    const user = users.find((u) => u.id === userId);
+    if (user) {
+      setId(user.id);
+      setPassword(user.password);
+      setError("");
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-950 via-slate-900 to-violet-950">
+      <div className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/20 space-y-6">
+        {/* ロゴ & タイトル */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 items-center justify-center text-white shadow-lg shadow-indigo-500/30 mb-2">
+            <Music className="w-7 h-7" />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900">
+            Acappella Hub
+          </h1>
+          <p className="text-xs text-slate-500">
+            バンド専用ポータルへようこそ。ログインしてください。
+          </p>
+        </div>
+
+        {/* エラーメッセージ */}
+        {error && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold animate-shake">
+            {error}
+          </div>
+        )}
+
+        {/* ログインフォーム */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              アカウント ID
+            </label>
+            <div className="relative">
+              <UserIcon className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+              <input
+                type="text"
+                required
+                placeholder="例: ken, misaki"
+                value={id}
+                onChange={(e) => setId(e.target.value)}
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              パスワード
+            </label>
+            <div className="relative">
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+              <input
+                type="password"
+                required
+                placeholder="パスワードを入力"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md shadow-indigo-300 transition-colors inline-flex items-center justify-center gap-2"
+          >
+            <LogIn className="w-4 h-4" />
+            ログイン
+          </button>
+        </form>
+
+        {/* テスト用かんたんログイン */}
+        <div className="pt-4 border-t border-slate-100 space-y-2">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-indigo-900">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+            テスト用ワンクリック選択 (クリックで入力):
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {users.map((u) => (
+              <button
+                key={u.id}
+                type="button"
+                onClick={() => handleQuickSelect(u.id)}
+                className={`text-left p-2 rounded-xl border text-xs transition-colors ${
+                  id === u.id
+                    ? "border-indigo-500 bg-indigo-50 font-bold text-indigo-900"
+                    : "border-slate-200 hover:bg-slate-50 text-slate-700"
+                }`}
+              >
+                <div className="font-semibold flex items-center justify-between">
+                  <span>{u.nickname}</span>
+                  {u.isAdmin && (
+                    <span className="text-[9px] bg-amber-100 text-amber-800 px-1 rounded flex items-center gap-0.5">
+                      <ShieldCheck className="w-2.5 h-2.5" />
+                      管理者
+                    </span>
+                  )}
+                </div>
+                <div className="text-[10px] text-slate-400">ID: {u.id}</div>
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-slate-400 text-center">
+            ※初期パスワードは全アカウント共通で <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">password123</code> です。
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

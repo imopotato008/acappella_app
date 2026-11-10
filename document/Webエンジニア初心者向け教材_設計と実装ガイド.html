@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>実践Next.js & TypeScript入門：アカペラバンド運営アプリで学ぶWeb開発の設計と実装完全ガイド</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 15mm 18mm 15mm;
+    }
+    body {
+      font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "BIZ UDPGothic", Meiryo, sans-serif;
+      line-height: 1.7;
+      color: #1e293b;
+      background: #ffffff;
+      font-size: 10.5pt;
+    }
+    h1.doc-title {
+      font-size: 24pt;
+      color: #1e1b4b;
+      margin-top: 20px;
+      margin-bottom: 8px;
+      line-height: 1.3;
+      font-weight: 800;
+      border-bottom: 4px solid #4f46e5;
+      padding-bottom: 12px;
+    }
+    .doc-subtitle {
+      font-size: 13pt;
+      color: #4f46e5;
+      font-weight: bold;
+      margin-bottom: 25px;
+    }
+    .meta-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #6366f1;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 30px;
+      font-size: 9.5pt;
+      color: #475569;
+    }
+    h2 {
+      font-size: 15pt;
+      color: #0f172a;
+      border-left: 6px solid #4f46e5;
+      padding-left: 12px;
+      margin-top: 35px;
+      margin-bottom: 15px;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 12pt;
+      color: #312e81;
+      margin-top: 22px;
+      margin-bottom: 10px;
+      page-break-after: avoid;
+    }
+    p {
+      margin-top: 0;
+      margin-bottom: 12px;
+      text-align: justify;
+    }
+    ul, ol {
+      margin-top: 0;
+      margin-bottom: 14px;
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 5px;
+    }
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      background: #f1f5f9;
+      color: #db2777;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 9.5pt;
+      border: 1px solid #e2e8f0;
+    }
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 14px 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: Consolas, monospace;
+      font-size: 9pt;
+      line-height: 1.5;
+      margin: 14px 0;
+      page-break-inside: avoid;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border: none;
+    }
+    .callout {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 4px solid #16a34a;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin: 16px 0;
+      font-size: 9.5pt;
+      page-break-inside: avoid;
+    }
+    .callout-title {
+      font-weight: bold;
+      color: #166534;
+      margin-bottom: 4px;
+    }
+    .callout-warn {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-left: 4px solid #d97706;
+    }
+    .callout-warn .callout-title {
+      color: #92400e;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background: #f1f5f9;
+      color: #1e293b;
+      font-weight: bold;
+    }
+    .diagram-box {
+      background: #faf5ff;
+      border: 1px solid #e9d5ff;
+      border-radius: 8px;
+      padding: 14px;
+      margin: 16px 0;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+    .page-break {
+      page-break-before: always;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="doc-title">実践 Next.js & TypeScript 入門</h1>
+  <div class="doc-subtitle">アカペラバンド運営アプリで学ぶ Web開発の設計と実装完全ガイド</div>
+
+  <div class="meta-box">
+    <strong>対象読者:</strong> 新人ソフトウェアエンジニア、Web開発初心者、React/Next.jsの基礎を学びたい方<br>
+    <strong>学習テーマ:</strong> 要件定義から型定義、状態管理、集計アルゴリズム、セキュリティ、UI設計までの全工程<br>
+    <strong>使用技術:</strong> Next.js (App Router), TypeScript, Tailwind CSS, React Context
+  </div>
+
+  <h2>はじめに：この教材の目的</h2>
+  <p>
+    新人のソフトウェアエンジニアが現場に出たとき、一番最初にぶつかる壁は「チュートリアルで文法を学んだのに、実際のアプリをどう作ればいいのか分からない」というギャップです。
+  </p>
+  <p>
+    本教材は、今回実際に開発した**「アカペラバンド運営Webアプリ（Acappella Hub）」**を題材に、プロのエンジニアがどのような思考プロセスで仕様を整理し、データ構造を設計し、画面やアルゴリズムを組み立てているのかを余すところなく解説します。
+  </p>
+
+  <div class="callout">
+    <div class="callout-title">💡 本教材で身につく実践スキル</div>
+    <ul>
+      <li><strong>型設計力:</strong> 顧客の「個人情報を持ちたくない」という要望をTypeScriptの型に落とし込む方法</li>
+      <li><strong>状態管理:</strong> React ContextとlocalStorageを組み合わせたデータの永続化</li>
+      <li><strong>アルゴリズム構築:</strong> 時間枠の重複計算とタイブレーク（同票処理）のコード化</li>
+      <li><strong>実務トラブルシューティング:</strong> 環境変数PATHやCSSビルドの仕組み</li>
+    </ul>
+  </div>
+
+  <h2>第1章：モダンWeb開発のアーキテクチャ</h2>
+
+  <h3>1.1 なぜ Next.js と TypeScript を選ぶのか？</h3>
+  <p>
+    現代のWeb開発でデファクトスタンダード（標準）となっているのが、Reactベースのフルスタックフレームワークである <strong>Next.js</strong> と、静的型付け言語の <strong>TypeScript</strong> です。
+  </p>
+  <ul>
+    <li><strong>TypeScriptの利点（安全性の向上）:</strong> 変数や関数の受け渡しにおいて「型（設計図）」を定義することで、タイポ（打ち間違い）やデータ構造の不一致を実行前にパソコンが検知してくれます。</li>
+    <li><strong>Next.jsの利点（開発効率の最大化）:</strong> 画面の表示（フロントエンド）とAPIサーバー（バックエンド）を1つのプロジェクトで同時に扱え、高速な画面遷移が簡単に作れます。</li>
+  </ul>
+
+  <h3>1.2 App Routerの「フォルダ＝URL」の仕組み</h3>
+  <p>
+    Next.jsの最大の特徴が「App Router（アップ・ルーター）」です。<code>src/app/</code> 配下のフォルダ構造が、そのままWebサイトのアドレス（URL）になります。
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>ファイルパス</th>
+        <th>ブラウザのURL</th>
+        <th>画面の役割</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>src/app/page.tsx</code></td>
+        <td><code>/</code></td>
+        <td>ダッシュボード（トップ画面）</td>
+      </tr>
+      <tr>
+        <td><code>src/app/events/page.tsx</code></td>
+        <td><code>/events</code></td>
+        <td>日程調整一覧画面</td>
+      </tr>
+      <tr>
+        <td><code>src/app/events/new/page.tsx</code></td>
+        <td><code>/events/new</code></td>
+        <td>新規日程調整の作成フォーム</td>
+      </tr>
+      <tr>
+        <td><code>src/app/events/[id]/page.tsx</code></td>
+        <td><code>/events/ev-1</code> など</td>
+        <td>イベント詳細画面（<code>[id]</code> は動的パラメータ）</td>
+      </tr>
+      <tr>
+        <td><code>src/app/events/[id]/respond/page.tsx</code></td>
+        <td><code>/events/ev-1/respond</code></td>
+        <td>日程・場所の回答入力画面</td>
+      </tr>
+      <tr>
+        <td><code>src/app/events/[id]/vote/page.tsx</code></td>
+        <td><code>/events/ev-1/vote</code></td>
+        <td>集計結果カード & 最終投票画面</td>
+      </tr>
+      <tr>
+        <td><code>src/app/locations/page.tsx</code></td>
+        <td><code>/locations</code></td>
+        <td>練習場所一覧 & Google Map埋め込み</td>
+      </tr>
+      <tr>
+        <td><code>src/app/profile/page.tsx</code></td>
+        <td><code>/profile</code></td>
+        <td>プロフィール設定画面</td>
+      </tr>
+      <tr>
+        <td><code>src/app/admin/users/page.tsx</code></td>
+        <td><code>/admin/users</code></td>
+        <td>管理者専用メンバー追加画面</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="page-break"></div>
+
+  <h2>第2章：要件定義から型定義への落とし込み</h2>
+
+  <h3>2.1 「データの最小化原則」の実践</h3>
+  <p>
+    開発途中、ユーザーから「セキュリティが心配なので個人情報は絶対に持たせたくない。氏名やメールアドレス、パートは削除してほしい」という重要な要望がありました。
+  </p>
+  <p>
+    セキュリティの最も強力な防御策は、<strong>「攻撃されても漏洩して困るデータ自体を最初から保存しないこと」</strong>です（データ最小化の原則）。これをTypeScriptの型定義にどう反映したかを見てみましょう。
+  </p>
+
+  <pre><code>// src/types/index.ts より抜粋
+export interface User {
+  id: string;        // メンバー固有のログインID (例: "ken", "misaki")
+  password: string;  // ログインパスワード
+  nickname: string;  // あだ名・バンド内表示名
+  bio?: string;      // 自己紹介・ひとこと (任意)
+  isAdmin?: boolean; // 管理者権限フラグ (メンバー追加権限)
+}</code></pre>
+
+  <p>
+    氏名やメールアドレスを排除し、ログインとバンド内の呼称に必要な最小限の項目に絞り込みました。また、部外者が勝手に登録できないよう、管理者がアカウントを発行する権限フラグ（<code>isAdmin</code>）を設けました。
+  </p>
+
+  <h3>2.2 状態の厳密な型定義（Union Type）</h3>
+  <p>
+    日程調整イベントの進行状態（ステータス）は、文字列なら何でも良いわけではありません。「決められた特定の状態」しか取れないように定義します。
+  </p>
+  <pre><code>export type EventStatus = 
+  | "open"        // 回答受付中（メンバーが回答可能）
+  | "aggregated"  // 集計完了（条件一致候補が0件だった状態）
+  | "voting"      // 最終投票中（複数候補から投票）
+  | "confirmed"   // 確定済み（練習日時・場所が決定）
+  | "completed"   // 練習終了（日時を経過した過去の記録）
+  | "cancelled";  // 中止</code></pre>
+  <p>
+    このように Union Type（共用体型）を使うと、例えば <code>status = "finish"</code> と間違えて書いた瞬間に TypeScript が「そんなステータスは存在しません」とエラーを出してくれるため、バグを未然に防ぐことができます。
+  </p>
+
+  <h2>第3章：状態管理と認証ガードの仕組み</h2>
+
+  <h3>3.1 React Context（共有の記憶部屋）</h3>
+  <p>
+    Webアプリでは、「いま誰がログインしているか？」「日程調整のリスト」といったデータを、複数の画面で共有する必要があります。
+  </p>
+  <div class="diagram-box">
+    <strong>バケツリレー問題の解決：</strong><br>
+    親コンポーネントから子、孫へと props（引数）を手渡しし続けるのは保守性が低下します。そこで <code>AppContext</code> という「アプリ共通の記憶部屋」を作り、どの画面からでも直接データを読み書きできるようにしました。
+  </div>
+
+  <pre><code>// どのコンポーネントからでも1行でデータにアクセスできる
+const { currentUser, events, updateEventStatus } = useApp();</code></pre>
+
+  <h3>3.2 未ログインを遮断する「認証ガード（AuthGuard）」</h3>
+  <p>
+    「ログインしていなければ絶対に中身の画面を見せない」という仕組みは、<code>ClientProviders.tsx</code> の中で以下のようにシンプルに実現されています。
+  </p>
+  <pre><code>function AuthContent({ children }: { children: React.ReactNode }) {
+  const { currentUser } = useApp();
+
+  // currentUser が null（未ログイン）なら、画面の中身ではなくログインフォームを返す！
+  if (!currentUser) {
+    return &lt;LoginForm /&gt;;
+  }
+
+  // ログイン済みならヘッダーと各ページを表示
+  return (
+    &lt;&gt;
+      &lt;Header /&gt;
+      &lt;main&gt;{children}&lt;/main&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+  <div class="page-break"></div>
+
+  <h2>第4章：コアアルゴリズム徹底解説（集計とタイブレーク）</h2>
+
+  <h3>4.1 時間帯と練習場所の最大人数集計ロジック</h3>
+  <p>
+    本アプリで最も高度なプログラミングが要求されたのが、<code>src/lib/aggregation.ts</code> の集計アルゴリズムです。
+  </p>
+
+  <div class="diagram-box">
+    <strong>アルゴリズムの思考ステップ：</strong><br>
+    1. <strong>スロットの離散化:</strong> 自由入力された時間帯を「30分刻み」のコマに分解する。<br>
+    2. <strong>スライディングウィンドウ:</strong> 要求された練習時間（例: 2時間＝4コマ）の長方形を、朝から夜まで30分ずつスライドさせて走査する。<br>
+    3. <strong>共通条件判定:</strong> その時間枠を完全にカバーし、かつ「同じスタジオ」が利用可能なメンバーを数える。<br>
+    4. <strong>最大人数の抽出:</strong> 全組み合わせの中で、最も人数の多かった候補枠だけをフィルタリングする。
+  </div>
+
+  <h3>4.2 民主的な最終投票と完全同票タイブレーク設計</h3>
+  <p>
+    参加可能人数が最大の候補が複数あった場合、参加可能メンバーによる最終投票を行います。ここには以下のような厳密なビジネスルールが組み込まれています：
+  </p>
+  <ol>
+    <li><strong>投票期限の遵守:</strong> 投票期限中は、幹事であっても途中で日程を確定することはできない（全員の投票機会を守るため）。</li>
+    <li><strong>期限終了時の自動確定:</strong> 期限が到来したとき、単独1位の候補があればシステムが自動で確定状態（<code>confirmed</code>）へ移行させる。</li>
+    <li><strong>希望順位スコアによる第1次タイブレーク:</strong> 最多得票が同数だった場合、各メンバーが回答時に付けた「練習場所の希望順位スコア（第1希望=3点、第2希望=2点、第3希望=1点）」の合計点を比較し、高い方を優先確定する。</li>
+    <li><strong>幹事の最終決定権（第2次タイブレーク）:</strong> 得票数も場所スコアも全く同じ「完全同点」の場合に限り、幹事画面に対象候補への「幹事決定で確定する」ボタンが出現する。</li>
+  </ol>
+
+  <pre><code>// 完全同票判定のコードロジック（vote/page.tsx より）
+const isTieVote = topVotedCandidates.length > 1;
+
+if (isTieVote) {
+  // 場所スコアの最高点を求める
+  maxScoreInTop = Math.max(...topVotedCandidates.map((c) => c.priorityScore));
+  finalTieCandidates = topVotedCandidates.filter((c) => c.priorityScore === maxScoreInTop);
+  
+  if (finalTieCandidates.length === 1) {
+    // 場所スコアで決着！優先候補として確定
+    scorePriorityWinner = finalTieCandidates[0];
+  }
+}
+
+// 得票数も場所スコアも同点の候補が複数ある場合のみ、幹事決定フラグが立つ！
+const isCompleteTie = isTieVote && finalTieCandidates.length > 1;</code></pre>
+
+  <h2>第5章：現場で役立つUI/UXテクニック</h2>
+
+  <h3>5.1 Google Map とのシームレスな連動</h3>
+  <p>
+    練習場所一覧画面（<code>/locations</code>）では、右側に Google Map をインライン埋め込みしています。APIキーを消費せずに安全に地図を表示するため、Google Maps の Embed URL を動的に生成しています：
+  </p>
+  <pre><code>const embedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=15&output=embed`;</code></pre>
+  <p>
+    さらに、日程調整詳細画面にある練習場所名をクリックすると、<code>/locations?select=loc-1</code> のように URL パラメータ付きで遷移します。練習場所画面では <code>useSearchParams()</code> でこの ID を取得し、該当の場所を自動でハイライトして地図の中心を合わせる親切なUXを実現しています。
+  </p>
+
+  <h3>5.2 練習終了（completed）ステータスの自動遷移</h3>
+  <p>
+    確定した練習日程の終了時刻を過ぎると、システムが自動的にステータスを「練習終了」へと更新します。これにより、確定した練習枠がダッシュボードの「過去の記録」へとアーカイブされ、将来的な「振り返りチャットや音源共有」への布石となっています。
+  </p>
+
+  <div class="page-break"></div>
+
+  <h2>第6章：新人エンジニアがつまずきやすいトラブル解説</h2>
+
+  <h3>6.1 「コマンドが認識されない！」環境変数PATHの正体</h3>
+  <p>
+    Node.jsをインストールした直後、ターミナルで <code>npm</code> を実行しても「認識されません」とエラーが出ました。
+  </p>
+  <div class="callout callout-warn">
+    <div class="callout-title">⚠️ なぜ起きたのか？</div>
+    Windowsは「環境変数 PATH（パス）」という検索リストを見てプログラムを探します。Node.jsをインストールするとWindows本体のリストは更新されますが、<strong>「すでに開いていたターミナル」は古いリストをメモリに保持したまま</strong>になっています。そのため、ターミナルを開き直す（または再起動する）ことで最新のリストが反映され、コマンドが使えるようになります。
+  </div>
+
+  <h3>6.2 「デザインが当たらない！」CSSビルドの仕組み</h3>
+  <p>
+    Next.js 16 と Tailwind CSS v4 の組み合わせにおいて、CSSが生成されず文字だけの画面になってしまう問題が発生しました。
+  </p>
+  <p>
+    最新のツール同士では、設定の相性によって内部プロセス（Turbopackの外部ローダー等）がうまく起動しないケースがあります。今回は、最も確実で安定した <code>@tailwindcss/cli</code> を導入し、<strong>「あらかじめCSSをビルドしてからNext.jsを起動する」</strong> という確実なビルドチェーンを <code>package.json</code> に構築することで解決しました。
+  </p>
+  <pre><code>"scripts": {
+  "build:css": "tailwindcss -i ./src/styles/input.css -o ./src/app/globals.css",
+  "dev": "npm run build:css && next dev",
+  "build": "npm run build:css && next build"
+}</code></pre>
+
+  <h2>おわりに：プロのエンジニアへの第一歩</h2>
+  <p>
+    Webアプリケーション開発の本質は、<strong>「ユーザーの困りごとやルールを深く理解し、破綻のないデータ構造と直感的な画面に翻訳すること」</strong>です。
+  </p>
+  <p>
+    本アプリ「Acappella Hub」には、ログイン認証、権限管理、複雑な時間計算、民主的な投票、外部サービス（Google Map）連携など、Web開発の重要エッセンスがすべて詰まっています。このコードベースを何度も読み返し、自分なりに改造してみることで、確実に本物のエンジニアリング力が身につきます。これからの成長を心より応援しています！
+  </p>
+
+</body>
+</html>
+
