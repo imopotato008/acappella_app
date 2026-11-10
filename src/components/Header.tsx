@@ -8,7 +8,6 @@ import {
   LogOut,
   MapPin,
   Music,
-  RotateCcw,
   Settings,
   ShieldCheck,
   UserCheck,
@@ -17,7 +16,7 @@ import {
 
 export function Header() {
   const pathname = usePathname();
-  const { currentUser, logout, resetToInitialData } = useApp();
+  const { currentUser, logout } = useApp();
 
   const navLinks = [
     { href: "/", label: "ダッシュボード", icon: Music },
@@ -93,20 +92,6 @@ export function Header() {
 
           {/* 右側：アカウント設定 & アカウント切替 */}
           <div className="flex items-center gap-2.5">
-            <button
-              onClick={() => {
-                if (confirm("データを初期状態にリセットしますか？")) {
-                  resetToInitialData();
-                  window.location.href = "/";
-                }
-              }}
-              title="データを初期状態にリセット"
-              className="hidden sm:flex items-center gap-1 px-2 py-1.5 text-xs text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              リセット
-            </button>
-
             {currentUser && (
               <>
                 {/* プロフィール設定リンク */}

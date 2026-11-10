@@ -417,9 +417,6 @@
   .h-2 {
     height: calc(var(--spacing) * 2);
   }
-  .h-2\.5 {
-    height: calc(var(--spacing) * 2.5);
-  }
   .h-3 {
     height: calc(var(--spacing) * 3);
   }
@@ -479,9 +476,6 @@
   }
   .min-h-screen {
     min-height: 100vh;
-  }
-  .w-2\.5 {
-    width: calc(var(--spacing) * 2.5);
   }
   .w-3 {
     width: calc(var(--spacing) * 3);
@@ -1802,9 +1796,6 @@
   @media (width >= 40rem) {
     .sm\:mt-0 {
       margin-top: 0px;
-    }
-    .sm\:flex {
-      display: flex;
     }
     .sm\:inline {
       display: inline;

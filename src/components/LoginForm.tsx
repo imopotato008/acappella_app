@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/AppContext";
-import { Lock, LogIn, Music, ShieldCheck, Sparkles, User as UserIcon } from "lucide-react";
+import { Lock, LogIn, Music, User as UserIcon } from "lucide-react";
 
 export function LoginForm() {
   const router = useRouter();
-  const { login, users } = useApp();
+  const { login } = useApp();
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,16 +27,6 @@ export function LoginForm() {
     } else {
       // ログイン後は必ずダッシュボードへ遷移
       window.location.href = "/";
-    }
-  };
-
-  // テスト用クイック選択
-  const handleQuickSelect = (userId: string) => {
-    const user = users.find((u) => u.id === userId);
-    if (user) {
-      setId(user.id);
-      setPassword(user.password);
-      setError("");
     }
   };
 
@@ -107,42 +97,6 @@ export function LoginForm() {
             ログイン
           </button>
         </form>
-
-        {/* テスト用かんたんログイン */}
-        <div className="pt-4 border-t border-slate-100 space-y-2">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold text-indigo-900">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-            テスト用ワンクリック選択 (クリックで入力):
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {users.map((u) => (
-              <button
-                key={u.id}
-                type="button"
-                onClick={() => handleQuickSelect(u.id)}
-                className={`text-left p-2 rounded-xl border text-xs transition-colors ${
-                  id === u.id
-                    ? "border-indigo-500 bg-indigo-50 font-bold text-indigo-900"
-                    : "border-slate-200 hover:bg-slate-50 text-slate-700"
-                }`}
-              >
-                <div className="font-semibold flex items-center justify-between">
-                  <span>{u.nickname}</span>
-                  {u.isAdmin && (
-                    <span className="text-[9px] bg-amber-100 text-amber-800 px-1 rounded flex items-center gap-0.5">
-                      <ShieldCheck className="w-2.5 h-2.5" />
-                      管理者
-                    </span>
-                  )}
-                </div>
-                <div className="text-[10px] text-slate-400">ID: {u.id}</div>
-              </button>
-            ))}
-          </div>
-          <p className="text-[10px] text-slate-400 text-center">
-            ※初期パスワードは全アカウント共通で <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">password123</code> です。
-          </p>
-        </div>
       </div>
     </div>
   );
