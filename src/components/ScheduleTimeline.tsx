@@ -103,9 +103,9 @@ export function ScheduleTimeline({
   return (
     <div className="space-y-4">
       {/* 候補日タブ一覧 */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-100 scrollbar-none">
-        <span className="text-[11px] font-bold text-slate-500 shrink-0 mr-1 flex items-center gap-1">
-          <Calendar className="w-3.5 h-3.5 text-indigo-600" />
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-100 dark:border-slate-800 scrollbar-none">
+        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0 mr-1 flex items-center gap-1">
+          <Calendar className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
           候補日を選択:
         </span>
         {availableDates.map((dateStr) => {
@@ -126,13 +126,13 @@ export function ScheduleTimeline({
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 inline-flex items-center gap-1.5 ${
                 isSelected
                   ? "bg-indigo-600 text-white shadow-xs shadow-indigo-200"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
               }`}
             >
               <span>{dateStr} ({dayName})</span>
               <span
                 className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                  isSelected ? "bg-white/20 text-white" : "bg-slate-200 text-slate-700"
+                  isSelected ? "bg-white/20 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                 }`}
               >
                 {attendCount}名可
@@ -143,15 +143,15 @@ export function ScheduleTimeline({
       </div>
 
       {/* タイムラインコンテナ */}
-      <div className="bg-slate-50/60 rounded-2xl border border-slate-200 p-4 space-y-3 overflow-hidden">
+      <div className="bg-slate-50/60 dark:bg-slate-900/80 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 space-y-3 overflow-hidden">
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-indigo-600" />
-            <span className="font-bold text-slate-800">
+            <Clock className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            <span className="font-bold text-slate-800 dark:text-slate-200">
               {selectedDate} の空き時間・重なり状況
             </span>
           </div>
-          <span className="text-[11px] text-slate-500">
+          <span className="text-[11px] text-slate-500 dark:text-slate-400">
             横スクロールで時間帯を確認できます
           </span>
         </div>
@@ -160,7 +160,7 @@ export function ScheduleTimeline({
         <div className="overflow-x-auto pb-3">
           <div className="min-w-[700px] space-y-2">
             {/* 時間軸ヘッダー */}
-            <div className="flex items-center text-[10px] font-bold text-slate-400 pl-28 pr-4 border-b border-slate-200 pb-1">
+            <div className="flex items-center text-[10px] font-bold text-slate-400 dark:text-slate-500 pl-28 pr-4 border-b border-slate-200 dark:border-slate-800 pb-1">
               {hours.map((h, idx) => (
                 <div
                   key={h}
@@ -169,19 +169,19 @@ export function ScheduleTimeline({
                 >
                   <span>{String(h).padStart(2, "0")}:00</span>
                   {idx > 0 && (
-                    <div className="absolute top-4 bottom-0 left-0 w-px bg-slate-200 h-2" />
+                    <div className="absolute top-4 bottom-0 left-0 w-px bg-slate-200 dark:bg-slate-800 h-2" />
                   )}
                 </div>
               ))}
             </div>
 
             {/* 重なり（Overlap）サマリーバー：何人重なっているかのヒートマップ */}
-            <div className="flex items-center py-1.5 pl-28 pr-4 bg-indigo-50/50 rounded-xl border border-indigo-100/80">
-              <div className="w-28 -ml-28 pr-2 flex items-center gap-1 text-[11px] font-bold text-indigo-900 shrink-0">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+            <div className="flex items-center py-1.5 pl-28 pr-4 bg-indigo-50/50 dark:bg-indigo-950/40 rounded-xl border border-indigo-100/80 dark:border-indigo-900/50">
+              <div className="w-28 -ml-28 pr-2 flex items-center gap-1 text-[11px] font-bold text-indigo-900 dark:text-indigo-200 shrink-0">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                 <span>重なりサマリー</span>
               </div>
-              <div className="flex-1 flex h-6 relative bg-white/80 rounded-lg overflow-hidden border border-indigo-100">
+              <div className="flex-1 flex h-6 relative bg-white/80 dark:bg-slate-800/80 rounded-lg overflow-hidden border border-indigo-100 dark:border-indigo-900/50">
                 {overlapSummary.slots.map((slot, idx) => {
                   const isTop =
                     slot.count > 0 && slot.count === overlapSummary.maxCount;
@@ -193,14 +193,14 @@ export function ScheduleTimeline({
                   return (
                     <div
                       key={idx}
-                      className={`flex-1 flex items-center justify-center text-[9px] font-bold border-r border-indigo-50/50 transition-colors ${
+                      className={`flex-1 flex items-center justify-center text-[9px] font-bold border-r border-indigo-50/50 dark:border-indigo-900/50 transition-colors ${
                         isTop
                           ? "bg-indigo-600 text-white"
                           : ratio > 0.6
-                          ? "bg-indigo-300 text-indigo-950"
+                          ? "bg-indigo-300 dark:bg-indigo-500 text-indigo-950 dark:text-white"
                           : ratio > 0
-                          ? "bg-indigo-100 text-indigo-800"
-                          : "bg-transparent text-slate-300"
+                          ? "bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-200"
+                          : "bg-transparent text-slate-300 dark:text-slate-600"
                       }`}
                       title={`${slot.timeStr}: ${slot.count}名 参加可能`}
                     >
@@ -224,20 +224,20 @@ export function ScheduleTimeline({
                 return (
                   <div
                     key={member.id}
-                    className="flex items-center h-10 rounded-xl bg-white border border-slate-200/80 px-2 relative group hover:border-indigo-300 transition-colors"
+                    className="flex items-center h-10 rounded-xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 px-2 relative group hover:border-indigo-300 dark:hover:border-indigo-500 transition-colors"
                   >
                     {/* 左側：メンバー情報 */}
                     <div className="w-24 shrink-0 flex items-center gap-1.5 pr-2">
-                      <div className="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-700 shrink-0">
+                      <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-[10px] font-bold text-slate-700 dark:text-slate-300 shrink-0">
                         {member.nickname.slice(0, 1)}
                       </div>
-                      <span className="text-xs font-bold text-slate-800 truncate" title={member.nickname}>
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate" title={member.nickname}>
                         {member.nickname}
                       </span>
                     </div>
 
                     {/* 右側：タイムラインバー表示エリア */}
-                    <div className="flex-1 h-7 relative bg-slate-50/80 rounded-lg overflow-hidden border border-slate-100">
+                    <div className="flex-1 h-7 relative bg-slate-50/80 dark:bg-slate-900/80 rounded-lg overflow-hidden border border-slate-100 dark:border-slate-800">
                       {/* 背景グリッド縦線 */}
                       {hours.map((h, idx) => {
                         if (idx === 0) return null;
@@ -245,7 +245,7 @@ export function ScheduleTimeline({
                         return (
                           <div
                             key={h}
-                            className="absolute top-0 bottom-0 w-px bg-slate-100 pointer-events-none"
+                            className="absolute top-0 bottom-0 w-px bg-slate-100 dark:bg-slate-800 pointer-events-none"
                             style={{ left: `${leftPct}%` }}
                           />
                         );
@@ -253,15 +253,15 @@ export function ScheduleTimeline({
 
                       {/* 状態ラベル (未回答 / 不参加) */}
                       {isNoResponse ? (
-                        <div className="absolute inset-0 flex items-center justify-center text-[11px] text-slate-400 font-medium">
+                        <div className="absolute inset-0 flex items-center justify-center text-[11px] text-slate-400 dark:text-slate-500 font-medium">
                           未回答
                         </div>
                       ) : isCannotAttend ? (
-                        <div className="absolute inset-0 flex items-center justify-center text-[11px] text-slate-400 font-medium bg-slate-100/50">
+                        <div className="absolute inset-0 flex items-center justify-center text-[11px] text-slate-400 dark:text-slate-500 font-medium bg-slate-100/50 dark:bg-slate-800/50">
                           不参加
                         </div>
                       ) : memberSlots.length === 0 ? (
-                        <div className="absolute inset-0 flex items-center justify-center text-[10px] text-slate-400">
+                        <div className="absolute inset-0 flex items-center justify-center text-[10px] text-slate-400 dark:text-slate-500">
                           この日の希望なし
                         </div>
                       ) : (
@@ -311,7 +311,7 @@ export function ScheduleTimeline({
         </div>
 
         {/* タイムライン凡例 */}
-        <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-200/60 flex-wrap gap-2">
+        <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-200/60 dark:border-slate-800 flex-wrap gap-2">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
               <span className="w-3 h-3 rounded bg-indigo-600 inline-block" />
@@ -322,11 +322,11 @@ export function ScheduleTimeline({
               参加可能時間帯
             </span>
             <span className="flex items-center gap-1">
-              <span className="w-3 h-3 rounded bg-slate-100 border border-slate-200 inline-block" />
+              <span className="w-3 h-3 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 inline-block" />
               未回答 / 不参加
             </span>
           </div>
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] text-slate-400 dark:text-slate-500">
             ※バーの上にカーソルを合わせると利用可能な練習場所の詳細が表示されます
           </span>
         </div>

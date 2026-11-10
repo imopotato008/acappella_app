@@ -151,11 +151,11 @@ function LocationsContent() {
       {/* ヘッダー */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <MapPin className="w-6 h-6 text-rose-500" />
             練習場所管理
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             バンド活動で利用可能な音楽スタジオや施設を一覧・地図で確認できます。
           </p>
         </div>
@@ -180,16 +180,16 @@ function LocationsContent() {
       {isAdding && (
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl border border-indigo-200 shadow-sm p-6 space-y-4"
+          className="bg-white dark:bg-slate-900 rounded-2xl border border-indigo-200 dark:border-indigo-900/60 shadow-sm p-6 space-y-4"
         >
-          <div className="flex items-center gap-2 text-indigo-700 text-xs font-bold uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider">
             <Building2 className="w-4 h-4" />
             練習場所の新規登録・提案
           </div>
 
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 施設・スタジオ名 <span className="text-rose-500">*必須</span>
               </label>
               <input
@@ -198,12 +198,12 @@ function LocationsContent() {
                 placeholder="例: サウンドスタジオ NOAH 渋谷店"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 住所・最寄駅 (任意)
               </label>
               <input
@@ -211,12 +211,12 @@ function LocationsContent() {
                 placeholder="例: 東京都渋谷区宇田川町36-6 / 渋谷駅徒歩5分"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Google Map のリンク または 埋め込みHTML (任意)
               </label>
               <input
@@ -224,16 +224,16 @@ function LocationsContent() {
                 placeholder="例: https://maps.app.goo.gl/... または Google Mapの「地図を埋め込む」コード"
                 value={mapUrl}
                 onChange={(e) => setMapUrl(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500"
               />
-              <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
                 ※共有リンク（<code>maps.app.goo.gl</code>等）を貼ると<strong>「Mapで開く」ボタン</strong>が表示されます。<br />
                 ※Googleマップの「共有 &gt; 地図を埋め込む」でコピーしたHTMLコード（<code>&lt;iframe...&gt;</code>）を貼ると、<strong>ページ内に地図が自動表示</strong>されます。
               </p>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 設備・メモ (任意)
               </label>
               <textarea
@@ -241,16 +241,16 @@ function LocationsContent() {
                 placeholder="例: ボーカル用マイク6本あり。キーボードレンタル可。土日料金1時間3,000円など"
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setIsAdding(false)}
-              className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800"
+              className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
             >
               キャンセル
             </button>
@@ -268,9 +268,9 @@ function LocationsContent() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* 左側：場所一覧カード (5カラム) */}
         <div className="lg:col-span-5 space-y-3">
-          <div className="text-xs font-bold text-slate-500 flex items-center justify-between">
+          <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
             <span>登録施設一覧 ({locations.length}件)</span>
-            <span className="text-[11px] font-normal text-slate-400">クリックで地図を切り替え</span>
+            <span className="text-[11px] font-normal text-slate-400 dark:text-slate-500">クリックで地図を切り替え</span>
           </div>
 
           <div className="space-y-2.5 max-h-[700px] overflow-y-auto pr-1">
@@ -283,32 +283,32 @@ function LocationsContent() {
                   key={loc.id}
                   onClick={() => setSelectedLocId(loc.id)}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-2.5 ${isSelected
-                      ? "border-indigo-600 bg-indigo-50/40 ring-2 ring-indigo-500/20 shadow-md"
-                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/70"
+                      ? "border-indigo-600 bg-indigo-50/40 dark:bg-indigo-950/40 ring-2 ring-indigo-500/20 shadow-md"
+                      : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/70 dark:hover:bg-slate-800"
                     }`}
                 >
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className={`font-bold text-sm ${isSelected ? "text-indigo-950" : "text-slate-900"}`}>
+                      <span className={`font-bold text-sm ${isSelected ? "text-indigo-950 dark:text-indigo-200" : "text-slate-900 dark:text-slate-100"}`}>
                         {loc.name}
                       </span>
                     </div>
 
                     {loc.address && (
-                      <p className="text-xs text-slate-600 flex items-center gap-1.5">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
                         <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                         <span className="line-clamp-1">{loc.address}</span>
                       </p>
                     )}
 
                     {loc.memo && (
-                      <p className="text-xs text-slate-500 line-clamp-2 bg-white/70 p-2 rounded-lg border border-slate-100">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 bg-white/70 dark:bg-slate-800/80 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
                         {loc.memo}
                       </p>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-[11px] text-slate-400">
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 dark:text-slate-500">
                     <span>
                       {creator ? `登録者: ${creator.nickname}` : "登録施設"}
                     </span>
@@ -318,7 +318,7 @@ function LocationsContent() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="text-indigo-600 hover:text-indigo-800 font-semibold inline-flex items-center gap-1"
+                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-semibold inline-flex items-center gap-1"
                         title="Google Mapを開く"
                       >
                         Mapで開く <ExternalLink className="w-3 h-3" />
@@ -328,7 +328,7 @@ function LocationsContent() {
                           <button
                             type="button"
                             onClick={(e) => handleStartEdit(loc, e)}
-                            className="text-slate-400 hover:text-indigo-600 p-1 rounded hover:bg-indigo-50 transition-colors"
+                            className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-colors"
                             title="この練習場所を編集"
                           >
                             <Pencil className="w-3.5 h-3.5" />
@@ -336,7 +336,7 @@ function LocationsContent() {
                           <button
                             type="button"
                             onClick={(e) => handleDeleteLocation(loc.id, loc.name, e)}
-                            className="text-slate-400 hover:text-rose-600 p-1 rounded hover:bg-rose-50 transition-colors"
+                            className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
                             title="この練習場所を削除"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -352,25 +352,25 @@ function LocationsContent() {
         </div>
 
         {/* 右側：Google Map 埋め込み & 詳細 (7カラム) */}
-        <div className="lg:col-span-7 sticky top-20 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs space-y-4 p-5">
+        <div className="lg:col-span-7 sticky top-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs space-y-4 p-5">
           {selectedLoc ? (
             editingLocId === selectedLoc.id ? (
               /* 練習場所の編集フォーム */
               <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+                    <div className="p-2 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-xl">
                       <Pencil className="w-4 h-4" />
                     </div>
                     <div>
-                      <h2 className="text-base font-bold text-slate-900">練習場所の情報を編集</h2>
-                      <p className="text-xs text-slate-400">登録済みのスタジオ名や住所を修正できます</p>
+                      <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">練習場所の情報を編集</h2>
+                      <p className="text-xs text-slate-400 dark:text-slate-500">登録済みのスタジオ名や住所を修正できます</p>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={handleCancelEdit}
-                    className="text-xs text-slate-500 hover:text-slate-800"
+                    className="text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
                   >
                     キャンセル
                   </button>
@@ -378,67 +378,67 @@ function LocationsContent() {
 
                 <form onSubmit={handleSaveEdit} className="space-y-3.5">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       施設・スタジオ名 <span className="text-rose-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500 bg-white"
+                      className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                       placeholder="例: サウンドスタジオ NOAH 渋谷店"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       住所や最寄駅 (任意)
                     </label>
                     <input
                       type="text"
                       value={editAddress}
                       onChange={(e) => setEditAddress(e.target.value)}
-                      className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500 bg-white"
+                      className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                       placeholder="例: 東京都渋谷区宇田川町39-2"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       Google Maps リンク または 埋め込みHTML (任意)
                     </label>
                     <input
                       type="text"
                       value={editMapUrl}
                       onChange={(e) => setEditMapUrl(e.target.value)}
-                      className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500 bg-white"
+                      className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                       placeholder="例: https://maps.app.goo.gl/... または Google Mapの「地図を埋め込む」コード"
                     />
-                    <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
                       ※共有リンク（<code>maps.app.goo.gl</code>等）を貼ると<strong>「Mapで開く」ボタン</strong>が表示されます。<br />
                       ※Googleマップの「共有 &gt; 地図を埋め込む」でコピーしたHTMLコード（<code>&lt;iframe...&gt;</code>）を貼ると、<strong>ページ内に地図が自動表示</strong>されます。
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       利用メモ・設備情報 (任意)
                     </label>
                     <textarea
                       rows={3}
                       value={editMemo}
                       onChange={(e) => setEditMemo(e.target.value)}
-                      className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500 bg-white"
+                      className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                       placeholder="例: ピアノあり、マイク6本無料レンタル可能"
                     />
                   </div>
 
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <button
                       type="button"
                       onClick={handleCancelEdit}
-                      className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors"
+                      className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl transition-colors"
                     >
                       キャンセル
                     </button>
@@ -455,17 +455,17 @@ function LocationsContent() {
             ) : (
               /* 通常の詳細 & 地図表示モード */
               <>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
                   <div>
-                    <div className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600">
+                    <div className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
                       <Navigation className="w-3.5 h-3.5" />
                       現在選択中の練習場所
                     </div>
-                    <h2 className="text-lg font-bold text-slate-900 mt-0.5">
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-0.5">
                       {selectedLoc.name}
                     </h2>
                     {selectedLoc.address && (
-                      <p className="text-xs text-slate-500">{selectedLoc.address}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{selectedLoc.address}</p>
                     )}
                   </div>
 
@@ -475,7 +475,7 @@ function LocationsContent() {
                         <button
                           type="button"
                           onClick={() => handleStartEdit(selectedLoc)}
-                          className="px-3 py-1.5 rounded-xl border border-indigo-200 bg-white hover:bg-indigo-50 text-indigo-600 text-xs font-bold inline-flex items-center gap-1 transition-colors"
+                          className="px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold inline-flex items-center gap-1 transition-colors"
                         >
                           <Pencil className="w-3.5 h-3.5" />
                           編集
@@ -483,7 +483,7 @@ function LocationsContent() {
                         <button
                           type="button"
                           onClick={() => handleDeleteLocation(selectedLoc.id, selectedLoc.name)}
-                          className="px-3 py-1.5 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 text-rose-600 text-xs font-bold inline-flex items-center gap-1 transition-colors"
+                          className="px-3 py-1.5 rounded-xl border border-rose-200 dark:border-rose-900 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-xs font-bold inline-flex items-center gap-1 transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                           削除
@@ -497,7 +497,7 @@ function LocationsContent() {
                 {embedMapUrl ? (
                   /* HTMLコードが登録されている場合：埋め込みMapを自動表示 ＋ Mapで開くボタン */
                   <div className="space-y-3">
-                    <div className="w-full h-80 sm:h-96 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-inner">
+                    <div className="w-full h-80 sm:h-96 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 shadow-inner">
                       <iframe
                         title={`Map of ${selectedLoc.name}`}
                         width="100%"
@@ -512,19 +512,19 @@ function LocationsContent() {
                       href={targetMapUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full py-3 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs sm:text-sm rounded-xl transition-colors inline-flex items-center justify-center gap-2 group"
+                      className="w-full py-3 px-4 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-bold text-xs sm:text-sm rounded-xl transition-colors inline-flex items-center justify-center gap-2 group"
                     >
-                      <Navigation className="w-4 h-4 text-indigo-600 group-hover:scale-110 transition-transform" />
+                      <Navigation className="w-4 h-4 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform" />
                       <span>Google Mapで開く（別タブ/アプリ）</span>
                       <ExternalLink className="w-3.5 h-3.5 opacity-70" />
                     </a>
                   </div>
                 ) : (
                   /* 基本：Mapで開くボタンのみを表示 */
-                  <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-3">
+                  <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50 space-y-3">
                     {selectedLoc.mapUrl && (
-                      <div className="text-[11px] text-slate-500 font-mono break-all line-clamp-1 bg-white p-2.5 rounded-xl border border-slate-200">
-                        <span className="font-sans font-bold text-slate-600 mr-1.5">登録リンク:</span>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono break-all line-clamp-1 bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <span className="font-sans font-bold text-slate-600 dark:text-slate-300 mr-1.5">登録リンク:</span>
                         {selectedLoc.mapUrl}
                       </div>
                     )}
@@ -542,7 +542,7 @@ function LocationsContent() {
                 )}
 
                 {selectedLoc.memo && (
-                  <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-900">
+                  <div className="p-3.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/50 border border-amber-200/80 dark:border-amber-800/80 text-xs text-amber-900 dark:text-amber-200">
                     <strong className="font-bold block mb-0.5">💡 利用メモ・設備情報:</strong>
                     {selectedLoc.memo}
                   </div>

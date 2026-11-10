@@ -120,62 +120,62 @@ export default function EventDetailPage({
       {/* 戻るリンク */}
       <Link
         href="/events"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
       >
         <ArrowLeft className="w-4 h-4" />
         日程調整一覧へ
       </Link>
 
       {/* メインヘッダーカード */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-5">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 sm:p-8 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
               {event.status === "open" && (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300">
                   回答受付中
                 </span>
               )}
               {event.status === "voting" && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 animate-pulse">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 animate-pulse">
                   <Vote className="w-3.5 h-3.5" />
                   最終投票受付中
                 </span>
               )}
               {event.status === "confirmed" && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   確定済み
                 </span>
               )}
               {event.status === "completed" && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-200 text-slate-800">
-                  <Clock className="w-3.5 h-3.5 text-slate-600" />
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+                  <Clock className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
                   練習終了
                 </span>
               )}
               {event.status === "aggregated" && (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300">
                   集計完了
                 </span>
               )}
 
-              <span className="text-xs text-slate-500">
-                幹事: <strong className="text-slate-700">{organizer?.nickname || organizer?.id}</strong>
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                幹事: <strong className="text-slate-700 dark:text-slate-300">{organizer?.nickname || organizer?.id}</strong>
                 {isOrganizer && (
-                  <span className="ml-1 text-[10px] bg-indigo-50 text-indigo-700 px-1.5 py-0.2 rounded font-bold">
+                  <span className="ml-1 text-[10px] bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.2 rounded font-bold">
                     あなた
                   </span>
                 )}
               </span>
             </div>
 
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
               {event.title}
             </h1>
 
             {event.description && (
-              <p className="text-xs sm:text-sm text-slate-600 whitespace-pre-wrap">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
                 {event.description}
               </p>
             )}
@@ -187,7 +187,7 @@ export default function EventDetailPage({
               <Link
                 href={`/events/${event.id}/respond`}
                 className={`px-5 py-2.5 rounded-xl font-bold text-xs shadow-xs transition-colors inline-flex items-center gap-1.5 ${myResponse
-                  ? "bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-300"
+                  ? "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700"
                   : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200"
                   }`}
               >
@@ -204,7 +204,7 @@ export default function EventDetailPage({
               </Link>
             ) : (
               <div className="text-right">
-                <span className="px-4 py-2 rounded-xl bg-slate-100 text-slate-500 font-bold text-xs inline-flex items-center gap-1.5 border border-slate-200">
+                <span className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-xs inline-flex items-center gap-1.5 border border-slate-200 dark:border-slate-700">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   {event.status === "completed"
                     ? "練習終了 (受付終了)"
@@ -212,12 +212,12 @@ export default function EventDetailPage({
                       ? "日程確定済み (回答締切)"
                       : "集計完了 (回答締切)"}
                 </span>
-                <p className="text-[10px] text-slate-400 mt-1">回答・回答変更は締め切られました</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">回答・回答変更は締め切られました</p>
               </div>
             )}
 
             {event.status === "open" && (
-              <span className="text-[11px] text-slate-400">
+              <span className="text-[11px] text-slate-400 dark:text-slate-500">
                 {myResponse
                   ? `回答済 (${myResponse.canAttend ? "参加可能" : "不参加"})`
                   : "まだ回答していません"}
@@ -227,25 +227,25 @@ export default function EventDetailPage({
         </div>
 
         {/* 条件グリッド */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-100 text-xs">
-          <div className="p-3 bg-slate-50 rounded-xl">
-            <span className="text-slate-500 block text-[11px]">練習時間</span>
-            <span className="font-bold text-slate-800">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs">
+          <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl">
+            <span className="text-slate-500 dark:text-slate-400 block text-[11px]">練習時間</span>
+            <span className="font-bold text-slate-800 dark:text-slate-200">
               {Math.floor(event.durationMinutes / 60)}時間
               {event.durationMinutes % 60 > 0 && `${event.durationMinutes % 60}分`}
             </span>
           </div>
 
-          <div className="p-3 bg-slate-50 rounded-xl">
-            <span className="text-slate-500 block text-[11px]">指定方式</span>
-            <span className="font-bold text-slate-800">
+          <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl">
+            <span className="text-slate-500 dark:text-slate-400 block text-[11px]">指定方式</span>
+            <span className="font-bold text-slate-800 dark:text-slate-200">
               {event.dateType === "candidate" ? "候補日指定" : "期間指定"}
             </span>
           </div>
 
-          <div className="p-3 bg-slate-50 rounded-xl col-span-2">
-            <span className="text-slate-500 block text-[11px]">回答期限</span>
-            <span className="font-bold text-amber-700">
+          <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl col-span-2">
+            <span className="text-slate-500 dark:text-slate-400 block text-[11px]">回答期限</span>
+            <span className="font-bold text-amber-700 dark:text-amber-400">
               {new Date(event.deadline).toLocaleString("ja-JP", {
                 month: "short",
                 day: "numeric",
@@ -259,24 +259,24 @@ export default function EventDetailPage({
         {/* 確定済み・練習終了の場合のハイライトカード */}
         {(event.status === "confirmed" || event.status === "completed") && confirmedSlot && (
           <div className={`p-5 rounded-2xl border space-y-3 ${event.status === "completed"
-            ? "bg-slate-50 border-slate-300"
-            : "bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200"
+            ? "bg-slate-50 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200"
+            : "bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200"
             }`}>
-            <div className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider ${event.status === "completed" ? "text-slate-700" : "text-emerald-800"
+            <div className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider ${event.status === "completed" ? "text-slate-700 dark:text-slate-300" : "text-emerald-800 dark:text-emerald-300"
               }`}>
-              <CheckCircle2 className={`w-4 h-4 ${event.status === "completed" ? "text-slate-500" : "text-emerald-600"}`} />
+              <CheckCircle2 className={`w-4 h-4 ${event.status === "completed" ? "text-slate-500" : "text-emerald-600 dark:text-emerald-400"}`} />
               {event.status === "completed" ? "練習終了 (実施記録)" : "確定した練習日程・場所"}
             </div>
-            <div className="text-lg font-bold text-emerald-950">
+            <div className="text-lg font-bold text-emerald-950 dark:text-emerald-100">
               {confirmedSlot.date} {confirmedSlot.startTime} 〜 {confirmedSlot.endTime}
             </div>
-            <div className="text-xs text-emerald-800 flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <div className="text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               場所:{" "}
               {confirmedLocation ? (
                 <Link
                   href={`/locations?select=${confirmedLocation.id}`}
-                  className="font-bold underline hover:text-emerald-900 inline-flex items-center gap-1"
+                  className="font-bold underline hover:text-emerald-900 dark:hover:text-emerald-100 inline-flex items-center gap-1"
                   title="クリックしてGoogle Mapで場所を確認"
                 >
                   {confirmedLocation.name}
@@ -288,15 +288,15 @@ export default function EventDetailPage({
             </div>
 
             {/* 参加メンバー一覧（フル参加・途中参加のバッジ） */}
-            <div className="pt-2 border-t border-emerald-200/60 space-y-2">
-              <div className="flex items-center justify-between text-[11px] font-bold text-emerald-900 flex-wrap gap-1">
+            <div className="pt-2 border-t border-emerald-200/60 dark:border-emerald-800/60 space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-bold text-emerald-900 dark:text-emerald-200 flex-wrap gap-1">
                 <span>
                   参加可能メンバー: {confirmedSlot.attendeeCount} 名 / {users.length} 名
                 </span>
-                <span className="text-emerald-800/80 font-normal">
+                <span className="text-emerald-800/80 dark:text-emerald-300/80 font-normal">
                   (フル参加: {confirmedSlot.fullAttendeeUserIds?.length ?? confirmedSlot.attendeeCount}名
                   {confirmedSlot.partialAttendeeUserIds && confirmedSlot.partialAttendeeUserIds.length > 0 && (
-                    <span className="font-bold text-amber-800 ml-1">
+                    <span className="font-bold text-amber-800 dark:text-amber-300 ml-1">
                       / 途中参加: {confirmedSlot.partialAttendeeUserIds.length}名
                     </span>
                   )})
@@ -316,27 +316,27 @@ export default function EventDetailPage({
                     <span
                       key={userId}
                       className={`text-xs px-2.5 py-0.5 rounded-lg font-medium inline-flex items-center gap-1.5 border shadow-2xs ${isFull
-                        ? "bg-white/90 border-emerald-200 text-emerald-950"
+                        ? "bg-white/90 dark:bg-slate-800 border-emerald-200 dark:border-emerald-700 text-emerald-950 dark:text-emerald-200"
                         : isLate
-                          ? "bg-amber-50 border-amber-300 text-amber-950"
+                          ? "bg-amber-50 dark:bg-amber-950/60 border-amber-300 dark:border-amber-800 text-amber-950 dark:text-amber-200"
                           : isEarly
-                            ? "bg-sky-50 border-sky-300 text-sky-950"
-                            : "bg-purple-50 border-purple-300 text-purple-950"
+                            ? "bg-sky-50 dark:bg-sky-950/60 border-sky-300 dark:border-sky-800 text-sky-950 dark:text-sky-200"
+                            : "bg-purple-50 dark:bg-purple-950/60 border-purple-300 dark:border-purple-800 text-purple-950 dark:text-purple-200"
                         }`}
                     >
                       <span>{u?.nickname || userId}</span>
                       {userId === currentUser?.id && (
-                        <span className="text-emerald-700 text-[10px] font-bold">
+                        <span className="text-emerald-700 dark:text-emerald-400 text-[10px] font-bold">
                           (あなた)
                         </span>
                       )}
                       {!isFull && detail && (
                         <span
                           className={`text-[10px] px-1.5 py-0.2 rounded font-semibold ${isLate
-                            ? "bg-amber-200/70 text-amber-900"
+                            ? "bg-amber-200/70 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200"
                             : isEarly
-                              ? "bg-sky-200/70 text-sky-900"
-                              : "bg-purple-200/70 text-purple-900"
+                              ? "bg-sky-200/70 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200"
+                              : "bg-purple-200/70 dark:bg-purple-900/60 text-purple-900 dark:text-purple-200"
                             }`}
                         >
                           {isLate && `${detail.overlapStart}〜遅刻`}
@@ -355,13 +355,13 @@ export default function EventDetailPage({
 
       {/* 幹事用管理パネル（幹事のみ表示） */}
       {isOrganizer && (
-        <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-5 space-y-3">
+        <div className="bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 rounded-2xl p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
-              <Settings className="w-4 h-4 text-amber-600" />
+            <div className="flex items-center gap-2 text-xs font-bold text-amber-900 dark:text-amber-200">
+              <Settings className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               幹事用管理メニュー
             </div>
-            <span className="text-[11px] text-amber-700">あなたはこの日程調整の幹事です</span>
+            <span className="text-[11px] text-amber-700 dark:text-amber-400">あなたはこの日程調整の幹事です</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -401,7 +401,7 @@ export default function EventDetailPage({
 
             <button
               onClick={handleDelete}
-              className="px-3.5 py-2 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 rounded-xl text-xs font-semibold transition-colors inline-flex items-center gap-1.5"
+              className="px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 rounded-xl text-xs font-semibold transition-colors inline-flex items-center gap-1.5"
             >
               <Trash2 className="w-3.5 h-3.5" />
               この日程調整を削除
@@ -411,26 +411,26 @@ export default function EventDetailPage({
       )}
 
       {/* メンバー回答状況セクション (全員公開) */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-100">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-indigo-600" />
+            <Users className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <div>
-              <h2 className="font-bold text-base text-slate-900">
+              <h2 className="font-bold text-base text-slate-900 dark:text-slate-100">
                 メンバー回答状況 ({eventResponses.length} / {users.length} 名)
               </h2>
-              <span className="text-xs text-slate-400">全員にリアルタイムで公開されています</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500">全員にリアルタイムで公開されています</span>
             </div>
           </div>
 
           {/* ビュー切り替えタブ（Outlook風タイムライン ⇄ リスト） */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl self-start sm:self-auto border border-slate-200">
+          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl self-start sm:self-auto border border-slate-200 dark:border-slate-700">
             <button
               type="button"
               onClick={() => setViewMode("timeline")}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1.5 ${viewMode === "timeline"
-                ? "bg-white text-indigo-700 shadow-2xs"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-2xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                 }`}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
@@ -440,8 +440,8 @@ export default function EventDetailPage({
               type="button"
               onClick={() => setViewMode("list")}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1.5 ${viewMode === "list"
-                ? "bg-white text-indigo-700 shadow-2xs"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-2xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                 }`}
             >
               <List className="w-3.5 h-3.5" />
@@ -460,7 +460,7 @@ export default function EventDetailPage({
           />
         ) : (
           /* 従来のリスト表示 */
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {users.map((member) => {
               const res = eventResponses.find((r) => r.userId === member.id);
 
@@ -468,14 +468,14 @@ export default function EventDetailPage({
                 <div key={member.id} className="py-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-700">
+                      <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-300">
                         {member.nickname.slice(0, 1)}
                       </div>
-                      <span className="text-xs font-bold text-slate-900">
+                      <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
                         {member.nickname}
                       </span>
                       {member.id === currentUser?.id && (
-                        <span className="text-[10px] bg-indigo-50 text-indigo-700 px-1.5 py-0.2 rounded font-bold">
+                        <span className="text-[10px] bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.2 rounded font-bold">
                           あなた
                         </span>
                       )}
@@ -483,16 +483,16 @@ export default function EventDetailPage({
 
                     <div>
                       {!res ? (
-                        <span className="text-xs font-medium text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200">
+                        <span className="text-xs font-medium text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700">
                           未回答
                         </span>
                       ) : res.canAttend ? (
-                        <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 inline-flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 inline-flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                           参加可能
                         </span>
                       ) : (
-                        <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200 inline-flex items-center gap-1">
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 inline-flex items-center gap-1">
                           <XCircle className="w-3.5 h-3.5 text-slate-400" />
                           不参加
                         </span>
@@ -506,10 +506,10 @@ export default function EventDetailPage({
                       {res.timeSlots.map((slot) => (
                         <div
                           key={slot.id}
-                          className="text-xs bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5"
+                          className="text-xs bg-slate-50/80 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5"
                         >
-                          <div className="flex items-center gap-2 font-medium text-slate-800">
-                            <Calendar className="w-3.5 h-3.5 text-indigo-600" />
+                          <div className="flex items-center gap-2 font-medium text-slate-800 dark:text-slate-200">
+                            <Calendar className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                             <span>{slot.date}</span>
                             <Clock className="w-3.5 h-3.5 text-slate-400 ml-1" />
                             <span>
@@ -526,12 +526,12 @@ export default function EventDetailPage({
                                 <Link
                                   key={loc.locationId}
                                   href={`/locations?select=${loc.locationId}`}
-                                  className="text-[11px] bg-white border border-slate-200 hover:border-indigo-400 px-2 py-0.5 rounded text-slate-700 hover:text-indigo-600 transition-colors inline-flex items-center gap-1"
+                                  className="text-[11px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 px-2 py-0.5 rounded text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors inline-flex items-center gap-1"
                                   title="クリックして場所とGoogle Mapを確認"
                                 >
                                   {locationObj?.name || "練習場所"}
                                   {loc.priorityRank && (
-                                    <span className="text-indigo-600 font-bold ml-0.5">
+                                    <span className="text-indigo-600 dark:text-indigo-400 font-bold ml-0.5">
                                       (第{loc.priorityRank}希望)
                                     </span>
                                   )}
@@ -546,7 +546,7 @@ export default function EventDetailPage({
 
                   {/* メモ */}
                   {res && res.memo && (
-                    <div className="pl-9 text-xs text-slate-500 italic">
+                    <div className="pl-9 text-xs text-slate-500 dark:text-slate-400 italic">
                       コメント: 「{res.memo}」
                     </div>
                   )}

@@ -144,16 +144,16 @@ export default function AdminUsersPage() {
       {isAdding && (
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-3xl border border-indigo-200 shadow-sm p-6 sm:p-8 space-y-4"
+          className="bg-white dark:bg-slate-900 rounded-3xl border border-indigo-200 dark:border-indigo-900/60 shadow-sm p-6 sm:p-8 space-y-4"
         >
-          <div className="flex items-center gap-2 text-indigo-700 text-xs font-bold uppercase tracking-wider border-b border-indigo-100 pb-2">
+          <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider border-b border-indigo-100 dark:border-indigo-900/50 pb-2">
             <UserPlus className="w-4 h-4" />
             新しいバンドメンバーアカウントの作成
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 アカウント ID (半角英数) <span className="text-rose-500">*必須</span>
               </label>
               <div className="relative">
@@ -166,14 +166,14 @@ export default function AdminUsersPage() {
                   title="半角英数字、ハイフン、アンダースコアのみ"
                   value={id}
                   onChange={(e) => setId(e.target.value.toLowerCase())}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 text-xs font-mono focus:ring-2 focus:ring-indigo-500"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs font-mono focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-              <p className="text-[10px] text-slate-400 mt-1">※ログイン時に使用するIDです（英小文字推奨）</p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">※ログイン時に使用するIDです（英小文字推奨）</p>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 あだ名・表示名 <span className="text-rose-500">*必須</span>
               </label>
               <input
@@ -182,13 +182,13 @@ export default function AdminUsersPage() {
                 placeholder="例: たっくん"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500"
               />
-              <p className="text-[10px] text-slate-400 mt-1">※本名は含めずバンド内の呼び名を設定</p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">※本名は含めずバンド内の呼び名を設定</p>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 初期パスワード <span className="text-rose-500">*必須</span>
               </label>
               <div className="relative">
@@ -198,14 +198,14 @@ export default function AdminUsersPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 text-xs font-mono focus:ring-2 focus:ring-indigo-500"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs font-mono focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-              <p className="text-[10px] text-slate-400 mt-1">※初期値は password123 (ログイン後に変更可)</p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">※初期値は password123 (ログイン後に変更可)</p>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 自己紹介・ひとこと (任意)
               </label>
               <input
@@ -213,33 +213,33 @@ export default function AdminUsersPage() {
                 placeholder="例: 新曲楽しみです！"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>
 
           <div className="pt-2">
-            <label className="flex items-center gap-2 cursor-pointer bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <label className="flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
               <input
                 type="checkbox"
                 checked={isAdmin}
                 onChange={(e) => setIsAdmin(e.target.checked)}
-                className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500"
               />
-              <span className="text-xs font-bold text-slate-800">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                 このアカウントに管理者権限を付与する
               </span>
-              <span className="text-[11px] text-slate-400 ml-1">
+              <span className="text-[11px] text-slate-400 dark:text-slate-500 ml-1">
                 （他のアカウントの追加・管理が可能になります）
               </span>
             </label>
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setIsAdding(false)}
-              className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800"
+              className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
             >
               キャンセル
             </button>

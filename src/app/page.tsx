@@ -71,34 +71,34 @@ export default function DashboardPage() {
         {/* 左側2カラム：日程調整セクション */}
         <div className="lg:col-span-2 space-y-8">
           {/* 進行中の日程調整 */}
-          <section className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-5">
+          <section className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+                <div className="p-2 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-xl">
                   <Calendar className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-lg text-slate-900">
+                  <h2 className="font-bold text-lg text-slate-900 dark:text-slate-100">
                     進行中の日程調整
                   </h2>
-                  <p className="text-xs text-slate-500">回答の提出・集計・最終投票</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">回答の提出・集計・最終投票</p>
                 </div>
               </div>
               <Link
                 href="/events"
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
+                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
               >
                 すべて見る &rarr;
               </Link>
             </div>
 
             {activeEvents.length === 0 ? (
-              <div className="text-center py-10 bg-slate-50/70 rounded-xl border border-dashed border-slate-200">
-                <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-sm font-medium text-slate-600">
+              <div className="text-center py-10 bg-slate-50/70 dark:bg-slate-800/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
+                <Calendar className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
                   現在進行中の日程調整はありません
                 </p>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                   新しい練習日程の調整を作成してみましょう
                 </p>
                 <Link
@@ -119,43 +119,43 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={event.id}
-                      className="group border border-slate-200 hover:border-indigo-300 rounded-xl p-5 hover:shadow-md transition-all bg-white relative"
+                      className="group border border-slate-200 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-500 rounded-xl p-5 hover:shadow-md transition-all bg-white dark:bg-slate-800/70 relative"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 flex-wrap">
                             {event.status === "open" && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300">
                                 回答受付中
                               </span>
                             )}
                             {event.status === "voting" && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 animate-pulse">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 animate-pulse">
                                 <Vote className="w-3 h-3" />
                                 最終投票受付中
                               </span>
                             )}
                             {event.status === "aggregated" && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300">
                                 集計完了
                               </span>
                             )}
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
                               幹事: {organizer?.nickname || event.organizerId}
                             </span>
                             <span className="text-xs text-slate-400">•</span>
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
                               練習時間: {Math.floor(event.durationMinutes / 60)}時間
                               {event.durationMinutes % 60 > 0 && `${event.durationMinutes % 60}分`}
                             </span>
                           </div>
 
-                          <h3 className="font-bold text-base text-slate-900 group-hover:text-indigo-600 transition-colors">
+                          <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                             <Link href={`/events/${event.id}`}>{event.title}</Link>
                           </h3>
 
                           {event.description && (
-                            <p className="text-xs text-slate-600 line-clamp-1">
+                            <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-1">
                               {event.description}
                             </p>
                           )}
@@ -164,8 +164,8 @@ export default function DashboardPage() {
                         {/* 回答状況 & アクションボタン */}
                         <div className="flex items-center gap-3 self-end sm:self-center">
                           <div className="text-right">
-                            <div className="text-xs text-slate-500">回答状況</div>
-                            <div className="text-sm font-bold text-slate-800">
+                            <div className="text-xs text-slate-500 dark:text-slate-400">回答状況</div>
+                            <div className="text-sm font-bold text-slate-800 dark:text-slate-200">
                               {eventResponses.length} / {users.length} 名
                             </div>
                           </div>
@@ -178,7 +178,7 @@ export default function DashboardPage() {
                             }
                             className={`px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition-colors whitespace-nowrap ${
                               myResponse
-                                ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                                ? "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600"
                                 : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-200"
                             }`}
                           >
@@ -192,22 +192,22 @@ export default function DashboardPage() {
                       </div>
 
                       {/* メンバー回答プログレスバー */}
-                      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                         <span>
                           {myResponse ? (
-                            <span className="text-emerald-600 font-medium inline-flex items-center gap-1">
+                            <span className="text-emerald-600 dark:text-emerald-400 font-medium inline-flex items-center gap-1">
                               <CheckCircle2 className="w-3.5 h-3.5" />
                               あなたの回答: {myResponse.canAttend ? "参加可能" : "参加不可"}
                             </span>
                           ) : (
-                            <span className="text-amber-600 font-medium">
+                            <span className="text-amber-600 dark:text-amber-400 font-medium">
                               ⚠️ まだ回答していません
                             </span>
                           )}
                         </span>
                         <Link
                           href={`/events/${event.id}`}
-                          className="font-medium text-indigo-600 hover:underline"
+                          className="font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
                         >
                           詳細・集計を見る &rarr;
                         </Link>
@@ -220,19 +220,19 @@ export default function DashboardPage() {
           </section>
 
           {/* 確定した練習予定 */}
-          <section className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+          <section className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+              <div className="p-2 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-xl">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="font-bold text-lg text-slate-900">確定した練習</h2>
-                <p className="text-xs text-slate-500">これから実施予定の決定練習</p>
+                <h2 className="font-bold text-lg text-slate-900 dark:text-slate-100">確定した練習</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">これから実施予定の決定練習</p>
               </div>
             </div>
 
             {confirmedEvents.length === 0 ? (
-              <p className="text-xs text-slate-400 py-4 text-center">
+              <p className="text-xs text-slate-400 dark:text-slate-500 py-4 text-center">
                 確定済みの練習予定はありません
               </p>
             ) : (
@@ -240,24 +240,24 @@ export default function DashboardPage() {
                 {confirmedEvents.map((ev) => (
                   <div
                     key={ev.id}
-                    className="p-4 rounded-xl border border-emerald-100 bg-emerald-50/40 space-y-2"
+                    className="p-4 rounded-xl border border-emerald-100 dark:border-emerald-800/60 bg-emerald-50/40 dark:bg-emerald-950/20 space-y-2"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                      <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/50 px-2 py-0.5 rounded-full">
                         確定済み
                       </span>
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs text-slate-500 dark:text-slate-400">
                         {Math.floor(ev.durationMinutes / 60)}時間練習
                       </span>
                     </div>
-                    <h3 className="font-bold text-slate-900 text-sm">{ev.title}</h3>
-                    <p className="text-xs text-slate-600 flex items-center gap-1">
+                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">{ev.title}</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5 text-slate-400" />
                       日程調整完了
                     </p>
                     <Link
                       href={`/events/${ev.id}`}
-                      className="block text-xs font-semibold text-indigo-600 hover:underline pt-1"
+                      className="block text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline pt-1"
                     >
                       詳細・回答内容を確認 &rarr;
                     </Link>
@@ -269,15 +269,15 @@ export default function DashboardPage() {
 
           {/* 終了した練習（過去の記録・振り返り用） */}
           {completedEvents.length > 0 && (
-            <section className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+            <section className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-slate-100 text-slate-600 rounded-xl">
+                  <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl">
                     <Clock className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="font-bold text-lg text-slate-900">終了した練習 (過去の記録)</h2>
-                    <p className="text-xs text-slate-500">今後の振り返りチャットや音源共有に備えたアーカイブ</p>
+                    <h2 className="font-bold text-lg text-slate-900 dark:text-slate-100">終了した練習 (過去の記録)</h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">今後の振り返りチャットや音源共有に備えたアーカイブ</p>
                   </div>
                 </div>
                 <span className="text-xs text-slate-400 font-mono">{completedEvents.length}件</span>
@@ -287,20 +287,20 @@ export default function DashboardPage() {
                 {completedEvents.map((ev) => (
                   <div
                     key={ev.id}
-                    className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2"
+                    className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/50 space-y-2"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-slate-600 bg-slate-200 px-2 py-0.5 rounded-full">
+                      <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-full">
                         練習終了
                       </span>
                       <span className="text-xs text-slate-400">
                         {Math.floor(ev.durationMinutes / 60)}時間
                       </span>
                     </div>
-                    <h3 className="font-bold text-slate-800 text-sm">{ev.title}</h3>
+                    <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm">{ev.title}</h3>
                     <Link
                       href={`/events/${ev.id}`}
-                      className="block text-xs font-semibold text-indigo-600 hover:underline pt-1"
+                      className="block text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline pt-1"
                     >
                       実施記録を確認 &rarr;
                     </Link>
@@ -314,45 +314,45 @@ export default function DashboardPage() {
         {/* 右側1カラム：バンドメンバー情報 & 場所 */}
         <div className="space-y-6">
           {/* バンドメンバー一覧 */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-violet-50 text-violet-600 rounded-xl">
+                <div className="p-2 bg-violet-50 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 rounded-xl">
                   <Users className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-base text-slate-900">
+                  <h2 className="font-bold text-base text-slate-900 dark:text-slate-100">
                     バンドメンバー
                   </h2>
-                  <p className="text-xs text-slate-500">{users.length}名 登録中</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{users.length}名 登録中</p>
                 </div>
               </div>
             </div>
 
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
               {users.map((user) => (
                 <div key={user.id} className="py-2.5 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-xs text-slate-700">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-xs text-slate-700 dark:text-slate-300">
                       {user.nickname.slice(0, 1)}
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                      <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                         {user.nickname}
                         {user.id === currentUser.id && (
-                          <span className="text-[10px] bg-indigo-50 text-indigo-700 px-1.5 py-0.2 rounded font-normal">
+                          <span className="text-[10px] bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.2 rounded font-normal">
                             あなた
                           </span>
                         )}
                       </div>
                       {user.bio && (
-                        <div className="text-[11px] text-slate-500 line-clamp-1">
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
                           {user.bio}
                         </div>
                       )}
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded">
+                  <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/80 px-2 py-0.5 rounded">
                     @{user.id}
                   </span>
                 </div>
@@ -361,20 +361,20 @@ export default function DashboardPage() {
           </div>
 
           {/* 登録済み練習場所 */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-rose-50 text-rose-600 rounded-xl">
+                <div className="p-2 bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 rounded-xl">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-base text-slate-900">練習場所</h2>
-                  <p className="text-xs text-slate-500">{locations.length} 件 登録</p>
+                  <h2 className="font-bold text-base text-slate-900 dark:text-slate-100">練習場所</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{locations.length} 件 登録</p>
                 </div>
               </div>
               <Link
                 href="/locations"
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
+                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
               >
                 Mapで見る &rarr;
               </Link>
@@ -385,15 +385,15 @@ export default function DashboardPage() {
                 <Link
                   key={loc.id}
                   href={`/locations?select=${loc.id}`}
-                  className="block p-3 rounded-xl bg-slate-50 hover:bg-indigo-50/50 hover:border-indigo-200 transition-colors border border-slate-100 space-y-1"
+                  className="block p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50/50 dark:hover:bg-slate-800 hover:border-indigo-200 dark:hover:border-slate-700 transition-colors border border-slate-100 dark:border-slate-800 space-y-1"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-800 line-clamp-1">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1">
                       {loc.name}
                     </span>
                   </div>
                   {loc.address && (
-                    <p className="text-[11px] text-slate-500 line-clamp-1">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
                       {loc.address}
                     </p>
                   )}

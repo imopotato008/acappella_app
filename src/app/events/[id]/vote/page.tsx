@@ -126,42 +126,42 @@ export default function EventVotePage({
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <Link
         href={`/events/${event.id}`}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
       >
         <ArrowLeft className="w-4 h-4" />
         {event.title} に戻る
       </Link>
 
       {/* タイトルヘッダー */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 sm:p-8 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">
               <Sparkles className="w-3.5 h-3.5" />
               集計結果 & 最終投票
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2">
               {event.title}
             </h1>
-            <p className="text-xs text-slate-500 mt-1">
-              参加条件を満たし、<strong className="text-indigo-600 font-bold">最大人数（{maxAttendees}名）</strong>が集まれる候補のみを提示しています。
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              参加条件を満たし、<strong className="text-indigo-600 dark:text-indigo-400 font-bold">最大人数（{maxAttendees}名）</strong>が集まれる候補のみを提示しています。
             </p>
           </div>
 
           <div className="flex flex-col sm:items-end gap-1.5 self-start">
             {event.status === "confirmed" ? (
-              <span className="px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 font-bold text-xs inline-flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span className="px-4 py-2 rounded-xl bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 font-bold text-xs inline-flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 日程確定済み
               </span>
             ) : isDeadlinePassed ? (
-              <span className="px-4 py-2 rounded-xl bg-slate-200 text-slate-800 font-bold text-xs inline-flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-slate-600" />
+              <span className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-xs inline-flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                 投票期限終了 ({totalVotesCount}票 投票済)
               </span>
             ) : (
-              <span className="px-4 py-2 rounded-xl bg-indigo-100 text-indigo-800 font-bold text-xs inline-flex items-center gap-1.5 animate-pulse">
-                <Vote className="w-4 h-4 text-indigo-600" />
+              <span className="px-4 py-2 rounded-xl bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 font-bold text-xs inline-flex items-center gap-1.5 animate-pulse">
+                <Vote className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                 最終投票受付中 ({totalVotesCount}票 投票済)
               </span>
             )}
@@ -172,8 +172,8 @@ export default function EventVotePage({
         {event.status !== "confirmed" && (
           <div className={`p-4 rounded-2xl border text-xs space-y-2 ${
             isDeadlinePassed
-              ? "bg-slate-50 border-slate-300 text-slate-800"
-              : "bg-indigo-50/70 border-indigo-200 text-indigo-950"
+              ? "bg-slate-50 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200"
+              : "bg-indigo-50/70 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800 text-indigo-950 dark:text-indigo-200"
           }`}>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -191,8 +191,8 @@ export default function EventVotePage({
                 </span>
                 <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
                   isDeadlinePassed
-                    ? "bg-slate-200 text-slate-700"
-                    : "bg-indigo-100 text-indigo-800"
+                    ? "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                    : "bg-indigo-100 dark:bg-indigo-900/70 text-indigo-800 dark:text-indigo-200"
                 }`}>
                   {isDeadlinePassed ? "期限終了 (確定処理フェーズ)" : "投票受付中 (期限内は確定不可)"}
                 </span>
@@ -203,7 +203,7 @@ export default function EventVotePage({
                 <button
                   type="button"
                   onClick={handleExpireDeadlineImmediately}
-                  className="px-2.5 py-1 bg-white hover:bg-slate-100 border border-indigo-300 rounded-lg text-[11px] font-semibold text-indigo-700 inline-flex items-center gap-1 transition-colors shrink-0"
+                  className="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-indigo-300 dark:border-indigo-700 rounded-lg text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 inline-flex items-center gap-1 transition-colors shrink-0"
                   title="テスト用に期限切れをシミュレート"
                 >
                   <FastForward className="w-3 h-3 text-indigo-500" />
@@ -212,7 +212,7 @@ export default function EventVotePage({
               )}
             </div>
 
-            <p className="text-[11px] text-slate-600">
+            <p className="text-[11px] text-slate-600 dark:text-slate-400">
               {!isDeadlinePassed
                 ? "※投票期限中は日程の確定は行えません。期限を迎えると、最多投票数の候補に自動で確定します。"
                 : isCompleteTie
@@ -223,28 +223,28 @@ export default function EventVotePage({
         )}
 
         {/* 投票ルール注意書き */}
-        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1">
-          <div className="font-bold text-slate-800">📌 最終投票ルール:</div>
-          <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-500">
-            <li>各候補枠に<strong className="text-slate-700 font-semibold">「参加可能」なメンバーのみ</strong>に投票権があります。</li>
-            <li><strong className="text-slate-700 font-semibold">投票期限内は確定できません</strong>。メンバー全員の意見を待つためです。</li>
-            <li>期限を迎えると、<strong className="text-slate-700 font-semibold">最多投票数の候補に自動で確定</strong>します。</li>
-            <li><strong className="text-amber-700 font-bold">期限後に同票の場合のみ</strong>、同票の候補から幹事が日程を確定できます。</li>
-            <li>投票済みの候補を再度クリックすると<strong className="text-slate-700 font-semibold">投票を取り消せます</strong>。</li>
+        <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-400 space-y-1">
+          <div className="font-bold text-slate-800 dark:text-slate-200">📌 最終投票ルール:</div>
+          <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+            <li>各候補枠に<strong className="text-slate-700 dark:text-slate-300 font-semibold">「参加可能」なメンバーのみ</strong>に投票権があります。</li>
+            <li><strong className="text-slate-700 dark:text-slate-300 font-semibold">投票期限内は確定できません</strong>。メンバー全員の意見を待つためです。</li>
+            <li>期限を迎えると、<strong className="text-slate-700 dark:text-slate-300 font-semibold">最多投票数の候補に自動で確定</strong>します。</li>
+            <li><strong className="text-amber-700 dark:text-amber-400 font-bold">期限後に同票の場合のみ</strong>、同票の候補から幹事が日程を確定できます。</li>
+            <li>投票済みの候補を再度クリックすると<strong className="text-slate-700 dark:text-slate-300 font-semibold">投票を取り消せます</strong>。</li>
           </ul>
         </div>
 
         {/* 期限後・同票発生時の幹事向け確定アラート */}
         {event.status !== "confirmed" && isDeadlinePassed && isCompleteTie && (
-          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 space-y-2 animate-fadeIn">
-            <div className="flex items-center gap-2 font-bold text-sm text-amber-950">
-              <Gavel className="w-5 h-5 text-amber-700 shrink-0" />
+          <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 space-y-2 animate-fadeIn">
+            <div className="flex items-center gap-2 font-bold text-sm text-amber-950 dark:text-amber-100">
+              <Gavel className="w-5 h-5 text-amber-700 dark:text-amber-400 shrink-0" />
               【期限終了・同票発生】幹事による最終決定を行ってください
             </div>
-            <p className="text-xs text-amber-800">
+            <p className="text-xs text-amber-800 dark:text-amber-300">
               投票期限が終了しましたが、最多得票数（{maxVoteCount}票）の候補が {finalTieCandidates.length} 件あります（同票）。
               {isOrganizer ? (
-                <strong className="text-amber-950 font-bold block mt-1">
+                <strong className="text-amber-950 dark:text-amber-100 font-bold block mt-1">
                   幹事のあなたに対象候補への「幹事決定で確定する」ボタンが表示されています。どちらか1つを選択して確定してください。
                 </strong>
               ) : (
@@ -259,7 +259,7 @@ export default function EventVotePage({
 
       {/* 候補カード一覧 */}
       {candidates.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500 text-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center text-slate-500 dark:text-slate-400 text-sm">
           参加条件を満たす候補枠がありませんでした。回答内容を再度ご確認ください。
         </div>
       ) : (
@@ -279,20 +279,20 @@ export default function EventVotePage({
             return (
               <div
                 key={cand.id}
-                className={`bg-white rounded-2xl border p-6 shadow-xs transition-all ${
+                className={`bg-white dark:bg-slate-900 rounded-2xl border p-6 shadow-xs transition-all ${
                   isConfirmed
-                    ? "border-emerald-500 ring-2 ring-emerald-400 bg-emerald-50/20"
+                    ? "border-emerald-500 ring-2 ring-emerald-400 bg-emerald-50/20 dark:bg-emerald-950/30"
                     : isThisCandidateTied
-                    ? "border-amber-400 ring-2 ring-amber-200 bg-amber-50/10"
+                    ? "border-amber-400 ring-2 ring-amber-200 dark:ring-amber-900/50 bg-amber-50/10 dark:bg-amber-950/20"
                     : isVotedThis
-                    ? "border-indigo-400 ring-2 ring-indigo-200"
-                    : "border-slate-200 hover:border-slate-300"
+                    ? "border-indigo-400 ring-2 ring-indigo-200 dark:ring-indigo-900/50 bg-indigo-50/20 dark:bg-indigo-950/20"
+                    : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+                      <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/70 px-2.5 py-0.5 rounded-full">
                         候補 {idx + 1}
                       </span>
                       {isConfirmed && (
@@ -313,16 +313,16 @@ export default function EventVotePage({
                           同票タイブレーク対象 ({cand.currentVoteCount}票)
                         </span>
                       )}
-                      <span className="text-xs font-semibold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">
                         練習可能時間: {Math.floor(cand.bandPracticeMinutes / 60)}時間{cand.bandPracticeMinutes % 60 > 0 ? `${cand.bandPracticeMinutes % 60}分` : ""}
                       </span>
-                      <span className="text-xs font-bold text-indigo-900 bg-indigo-100 px-2.5 py-0.5 rounded-full">
+                      <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200 bg-indigo-100 dark:bg-indigo-900/70 px-2.5 py-0.5 rounded-full">
                         得票数: {cand.currentVoteCount} 票
                       </span>
                     </div>
 
                     {/* 日時 */}
-                    <div className="flex items-center gap-2 text-base sm:text-lg font-bold text-slate-900">
+                    <div className="flex items-center gap-2 text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                       <Calendar className="w-5 h-5 text-indigo-600" />
                       <span>{cand.date}</span>
                       <Clock className="w-4 h-4 text-slate-400 ml-2" />
@@ -332,7 +332,7 @@ export default function EventVotePage({
                     </div>
 
                     {/* 場所 */}
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-700">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                       <MapPin className="w-4 h-4 text-rose-500 shrink-0" />
                       <Link
                         href={`/locations?select=${cand.locationId}`}
@@ -349,7 +349,7 @@ export default function EventVotePage({
 
                     {/* 参加可能メンバー一覧（フル参加・途中参加の内訳つき） */}
                     <div className="pt-2 space-y-1.5">
-                      <div className="flex items-center justify-between text-[11px] font-bold text-slate-600 flex-wrap gap-1">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-400 flex-wrap gap-1">
                         <span>
                           参加可能メンバー: 計 {cand.attendeeCount}名
                         </span>
@@ -377,7 +377,7 @@ export default function EventVotePage({
                               key={userId}
                               className={`text-xs px-2.5 py-1 rounded-lg font-medium inline-flex items-center gap-1.5 border ${
                                 isFull
-                                  ? "bg-slate-50 border-slate-200 text-slate-800"
+                                  ? "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200"
                                   : isLate
                                   ? "bg-amber-50 border-amber-200 text-amber-900"
                                   : isEarly
@@ -420,7 +420,7 @@ export default function EventVotePage({
                     {event.status !== "confirmed" && (
                       <div>
                         {isDeadlinePassed ? (
-                          <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 inline-block">
+                          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 inline-block">
                             投票受付終了
                           </span>
                         ) : isCanVote ? (
@@ -430,7 +430,7 @@ export default function EventVotePage({
                             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-xs ${
                               isVotedThis
                                 ? "bg-indigo-600 text-white shadow-indigo-200"
-                                : "bg-white text-indigo-700 border border-indigo-300 hover:bg-indigo-50"
+                                : "bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/50"
                             }`}
                           >
                             <Vote className="w-4 h-4" />

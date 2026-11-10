@@ -110,18 +110,18 @@ export default function NewEventPage() {
       {/* 戻るリンク */}
       <Link
         href="/events"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
       >
         <ArrowLeft className="w-4 h-4" />
         日程調整一覧へ戻る
       </Link>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-6">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 sm:p-8 space-y-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
             {isPreview ? "作成内容の確認" : "新規日程調整の作成"}
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             {isPreview
               ? "以下の内容で日程調整を公開します。間違いがないかご確認ください。"
               : "練習の条件を設定して、メンバーに回答を募りましょう。"}
@@ -129,7 +129,7 @@ export default function NewEventPage() {
         </div>
 
         {errorMessage && (
-          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
+          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs font-medium">
             {errorMessage}
           </div>
         )}
@@ -139,12 +139,12 @@ export default function NewEventPage() {
           <form onSubmit={handleProceedToPreview} className="space-y-6">
             {/* 1. 基本情報 */}
             <div className="space-y-4">
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider text-indigo-600 border-b border-indigo-100 pb-1">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 border-b border-indigo-100 dark:border-indigo-900/50 pb-1">
                 1. 基本情報
               </h2>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   日程調整タイトル <span className="text-rose-500">*必須</span>
                 </label>
                 <input
@@ -153,18 +153,18 @@ export default function NewEventPage() {
                   placeholder="例: 12月度 本番前集中練習"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   幹事 <span className="text-rose-500">*必須</span>
                 </label>
                 <select
                   value={organizerId}
                   onChange={(e) => setOrganizerId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                 >
                   {users.map((u) => (
                     <option key={u.id} value={u.id}>
@@ -172,13 +172,13 @@ export default function NewEventPage() {
                     </option>
                   ))}
                 </select>
-                <p className="text-[11px] text-slate-400 mt-1">
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
                   ※作成者が初期幹事となりますが、別メンバーを指定することも可能です。
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   備考・連絡事項 (任意)
                 </label>
                 <textarea
@@ -186,19 +186,19 @@ export default function NewEventPage() {
                   placeholder="練習の目的や希望曲などがあれば記入してください"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
             </div>
 
             {/* 2. 日程設定 */}
             <div className="space-y-4">
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider text-indigo-600 border-b border-indigo-100 pb-1">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 border-b border-indigo-100 dark:border-indigo-900/50 pb-1">
                 2. 日程設定
               </h2>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-2">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
                   日程指定方式 <span className="text-rose-500">*必須</span>
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -207,12 +207,12 @@ export default function NewEventPage() {
                     onClick={() => setDateType("candidate")}
                     className={`py-3 px-4 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all ${
                       dateType === "candidate"
-                        ? "border-indigo-600 bg-indigo-50/70 text-indigo-900 ring-2 ring-indigo-500"
-                        : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                        ? "border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-200 ring-2 ring-indigo-500"
+                        : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
                     }`}
                   >
                     <span>候補日指定方式</span>
-                    <span className="text-[10px] font-normal text-slate-500">
+                    <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">
                       指定した複数の候補日から回答
                     </span>
                   </button>
@@ -222,12 +222,12 @@ export default function NewEventPage() {
                     onClick={() => setDateType("range")}
                     className={`py-3 px-4 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all ${
                       dateType === "range"
-                        ? "border-indigo-600 bg-indigo-50/70 text-indigo-900 ring-2 ring-indigo-500"
-                        : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                        ? "border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-200 ring-2 ring-indigo-500"
+                        : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
                     }`}
                   >
                     <span>期間指定方式</span>
-                    <span className="text-[10px] font-normal text-slate-500">
+                    <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">
                       開始日〜終了日の範囲内で回答
                     </span>
                   </button>
@@ -236,8 +236,8 @@ export default function NewEventPage() {
 
               {/* 候補日指定の場合 */}
               {dateType === "candidate" ? (
-                <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80 space-y-3">
-                  <label className="block text-xs font-bold text-slate-700">
+                <div className="bg-slate-50/70 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700 space-y-3">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                     候補日リスト (複数追加可能)
                   </label>
                   <div className="flex gap-2">
@@ -245,7 +245,7 @@ export default function NewEventPage() {
                       type="date"
                       value={newDateInput}
                       onChange={(e) => setNewDateInput(e.target.value)}
-                      className="px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"
+                      className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                     />
                     <button
                       type="button"
@@ -261,9 +261,9 @@ export default function NewEventPage() {
                     {candidateDates.map((d) => (
                       <span
                         key={d}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-800 shadow-2xs"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200 shadow-2xs"
                       >
-                        <Calendar className="w-3.5 h-3.5 text-indigo-600" />
+                        <Calendar className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                         {d}
                         <button
                           type="button"
@@ -278,27 +278,27 @@ export default function NewEventPage() {
                 </div>
               ) : (
                 /* 期間指定の場合 */
-                <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80 space-y-3">
-                  <label className="block text-xs font-bold text-slate-700">
+                <div className="bg-slate-50/70 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700 space-y-3">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                     調整対象期間
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <span className="text-[11px] text-slate-500 block mb-1">開始日</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 block mb-1">開始日</span>
                       <input
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                       />
                     </div>
                     <div>
-                      <span className="text-[11px] text-slate-500 block mb-1">終了日</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 block mb-1">終了日</span>
                       <input
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                       />
                     </div>
                   </div>
@@ -308,19 +308,19 @@ export default function NewEventPage() {
 
             {/* 3. 回答設定 */}
             <div className="space-y-4">
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider text-indigo-600 border-b border-indigo-100 pb-1">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 border-b border-indigo-100 dark:border-indigo-900/50 pb-1">
                 3. 回答 & 条件設定
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     必要な練習時間 <span className="text-rose-500">*必須 (30分刻み)</span>
                   </label>
                   <select
                     value={durationMinutes}
                     onChange={(e) => setDurationMinutes(Number(e.target.value))}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value={60}>1 時間 (60分)</option>
                     <option value={90}>1 時間 30 分 (90分)</option>
@@ -329,20 +329,20 @@ export default function NewEventPage() {
                     <option value={180}>3 時間 (180分)</option>
                     <option value={240}>4 時間 (240分)</option>
                   </select>
-                  <p className="text-[11px] text-slate-400 mt-1">
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
                     集計時にこの時間を満たすスロットのみが候補として抽出されます。
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     回答期限 <span className="text-rose-500">*必須</span>
                   </label>
                   <input
                     type="datetime-local"
                     value={deadline}
                     onChange={(e) => setDeadline(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -360,38 +360,38 @@ export default function NewEventPage() {
         ) : (
           /* 確認画面 */
           <div className="space-y-6">
-            <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs flex items-center gap-2">
-              <Info className="w-4 h-4 shrink-0 text-indigo-600" />
+            <div className="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-900 dark:text-indigo-200 text-xs flex items-center gap-2">
+              <Info className="w-4 h-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
               以下の内容で公開します。バンドメンバー全員に回答が依頼されます。
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-5 border border-slate-200 space-y-4 text-xs">
-              <div className="grid grid-cols-3 gap-2 pb-3 border-b border-slate-200">
-                <span className="text-slate-500">タイトル</span>
-                <span className="col-span-2 font-bold text-slate-900 text-sm">{title}</span>
+            <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-5 border border-slate-200 dark:border-slate-700 space-y-4 text-xs">
+              <div className="grid grid-cols-3 gap-2 pb-3 border-b border-slate-200 dark:border-slate-700">
+                <span className="text-slate-500 dark:text-slate-400">タイトル</span>
+                <span className="col-span-2 font-bold text-slate-900 dark:text-slate-100 text-sm">{title}</span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 pb-3 border-b border-slate-200">
-                <span className="text-slate-500">幹事</span>
-                <span className="col-span-2 font-bold text-slate-900">
+              <div className="grid grid-cols-3 gap-2 pb-3 border-b border-slate-200 dark:border-slate-700">
+                <span className="text-slate-500 dark:text-slate-400">幹事</span>
+                <span className="col-span-2 font-bold text-slate-900 dark:text-slate-100">
                   {selectedOrganizer?.nickname} (@{selectedOrganizer?.id})
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 pb-3 border-b border-slate-200">
-                <span className="text-slate-500">日程指定方式</span>
-                <span className="col-span-2 font-bold text-slate-900">
+              <div className="grid grid-cols-3 gap-2 pb-3 border-b border-slate-200 dark:border-slate-700">
+                <span className="text-slate-500 dark:text-slate-400">日程指定方式</span>
+                <span className="col-span-2 font-bold text-slate-900 dark:text-slate-100">
                   {dateType === "candidate" ? "候補日指定方式" : "期間指定方式"}
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 pb-3 border-b border-slate-200">
-                <span className="text-slate-500">対象日程</span>
-                <div className="col-span-2 font-medium text-slate-900">
+              <div className="grid grid-cols-3 gap-2 pb-3 border-b border-slate-200 dark:border-slate-700">
+                <span className="text-slate-500 dark:text-slate-400">対象日程</span>
+                <div className="col-span-2 font-medium text-slate-900 dark:text-slate-100">
                   {dateType === "candidate" ? (
                     <div className="flex flex-wrap gap-1.5">
                       {candidateDates.map((d) => (
-                        <span key={d} className="bg-white px-2 py-0.5 rounded border border-slate-200">
+                        <span key={d} className="bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
                           {d}
                         </span>
                       ))}
@@ -404,24 +404,24 @@ export default function NewEventPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 pb-3 border-b border-slate-200">
-                <span className="text-slate-500">必要な練習時間</span>
-                <span className="col-span-2 font-bold text-slate-900">
+              <div className="grid grid-cols-3 gap-2 pb-3 border-b border-slate-200 dark:border-slate-700">
+                <span className="text-slate-500 dark:text-slate-400">必要な練習時間</span>
+                <span className="col-span-2 font-bold text-slate-900 dark:text-slate-100">
                   {Math.floor(durationMinutes / 60)} 時間 {durationMinutes % 60 > 0 && `${durationMinutes % 60} 分`}
                 </span>
               </div>
 
               <div className="grid grid-cols-3 gap-2">
-                <span className="text-slate-500">回答期限</span>
-                <span className="col-span-2 font-bold text-amber-700">
+                <span className="text-slate-500 dark:text-slate-400">回答期限</span>
+                <span className="col-span-2 font-bold text-amber-700 dark:text-amber-400">
                   {new Date(deadline).toLocaleString("ja-JP")}
                 </span>
               </div>
 
               {description && (
-                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-200">
-                  <span className="text-slate-500">備考</span>
-                  <span className="col-span-2 text-slate-700 whitespace-pre-wrap">{description}</span>
+                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
+                  <span className="text-slate-500 dark:text-slate-400">備考</span>
+                  <span className="col-span-2 text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{description}</span>
                 </div>
               )}
             </div>
@@ -430,7 +430,7 @@ export default function NewEventPage() {
               <button
                 type="button"
                 onClick={() => setIsPreview(false)}
-                className="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 &larr; 修正する
               </button>

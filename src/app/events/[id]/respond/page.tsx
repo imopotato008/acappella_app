@@ -111,13 +111,13 @@ export default function EventRespondPage({
 
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center space-y-4">
-        <div className="w-12 h-12 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mx-auto">
+        <div className="w-12 h-12 bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 rounded-full flex items-center justify-center mx-auto">
           <AlertTriangle className="w-6 h-6" />
         </div>
-        <h1 className="text-xl font-bold text-slate-800">
+        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
           現在は回答を受け付けていません
         </h1>
-        <p className="text-xs text-slate-500 max-w-md mx-auto">
+        <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
           この日程調整の現在のステータスは「<strong>{statusText}</strong>」です。回答の提出・変更は回答受付中のみ行えます。
         </p>
         <Link
@@ -309,28 +309,28 @@ export default function EventRespondPage({
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <Link
         href={`/events/${event.id}`}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
       >
         <ArrowLeft className="w-4 h-4" />
         {event.title} に戻る
       </Link>
 
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-6">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 sm:p-8 space-y-6">
         <div>
-          <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+          <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 rounded-full border border-indigo-100 dark:border-indigo-900/50">
             回答フォーム
           </span>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2">
             練習日程・場所の回答
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            回答者: <strong className="text-slate-800 font-bold">{currentUser.nickname}</strong>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            回答者: <strong className="text-slate-800 dark:text-slate-200 font-bold">{currentUser.nickname}</strong>
           </p>
         </div>
 
         {/* 1. 参加可否の選択 */}
         <div className="space-y-3">
-          <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+          <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
             1. 参加可否を選択してください
           </label>
           <div className="grid grid-cols-2 gap-4">
@@ -339,15 +339,15 @@ export default function EventRespondPage({
               onClick={() => setCanAttend(true)}
               className={`p-4 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
                 canAttend
-                  ? "border-emerald-600 bg-emerald-50/70 text-emerald-900 ring-2 ring-emerald-500 shadow-xs"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                  ? "border-emerald-600 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 ring-2 ring-emerald-500 shadow-xs"
+                  : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
             >
               <CheckCircle2
-                className={`w-6 h-6 ${canAttend ? "text-emerald-600" : "text-slate-400"}`}
+                className={`w-6 h-6 ${canAttend ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}`}
               />
               <span className="font-bold text-sm">参加可能</span>
-              <span className="text-[11px] text-slate-500">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">
                 日時・場所を回答する
               </span>
             </button>
@@ -357,15 +357,15 @@ export default function EventRespondPage({
               onClick={() => setCanAttend(false)}
               className={`p-4 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
                 !canAttend
-                  ? "border-slate-600 bg-slate-100 text-slate-900 ring-2 ring-slate-400 shadow-xs"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                  ? "border-slate-600 dark:border-slate-500 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 ring-2 ring-slate-400 dark:ring-slate-500 shadow-xs"
+                  : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
             >
               <XCircle
-                className={`w-6 h-6 ${!canAttend ? "text-slate-700" : "text-slate-400"}`}
+                className={`w-6 h-6 ${!canAttend ? "text-slate-700 dark:text-slate-300" : "text-slate-400"}`}
               />
               <span className="font-bold text-sm">参加不可</span>
-              <span className="text-[11px] text-slate-500">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">
                 この日程は参加できません
               </span>
             </button>
@@ -374,26 +374,26 @@ export default function EventRespondPage({
 
         {/* 2. 参加可能日時の入力（参加可能の場合のみ） */}
         {canAttend ? (
-          <div className="space-y-6 pt-4 border-t border-slate-100">
+          <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-800">
             <div>
-              <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-1">
                 2. 参加可能な日時 & 利用可能な練習場所
               </label>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 都合の良い時間帯と、その時間帯に利用できるスタジオ・施設を登録してください（複数登録可）。
               </p>
             </div>
 
             {/* 時間帯追加カード */}
-            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 space-y-4">
-              <h3 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <Plus className="w-4 h-4 text-indigo-600" />
+            <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/80 space-y-4">
+              <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <Plus className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                 参加可能時間帯を追加する
               </h3>
 
               {/* 日付選択 */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
                   日付を選択
                 </label>
                 {event.dateType === "candidate" && event.candidateDates ? (
@@ -406,7 +406,7 @@ export default function EventRespondPage({
                         className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
                           selectedDate === date
                             ? "bg-indigo-600 text-white shadow-xs"
-                            : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                            : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                         }`}
                       >
                         {date}
@@ -420,7 +420,7 @@ export default function EventRespondPage({
                     max={event.endDate}
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"
+                    className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                   />
                 )}
               </div>
@@ -428,13 +428,13 @@ export default function EventRespondPage({
               {/* 時間範囲選択 (30分刻み) */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
                     開始時刻 (30分刻み)
                   </label>
                   <select
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                   >
                     {TIME_OPTIONS.map((t) => (
                       <option key={t} value={t}>
@@ -444,13 +444,13 @@ export default function EventRespondPage({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
                     終了時刻 (30分刻み)
                   </label>
                   <select
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                   >
                     {TIME_OPTIONS.map((t) => (
                       <option key={t} value={t}>
@@ -462,15 +462,15 @@ export default function EventRespondPage({
               </div>
 
               {/* 練習場所の選択 */}
-              <div className="space-y-2 pt-2 border-t border-slate-200/80">
+              <div className="space-y-2 pt-2 border-t border-slate-200/80 dark:border-slate-700/80">
                 <div className="flex items-center justify-between">
-                  <label className="block text-[11px] font-bold text-slate-700">
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">
                     この時間帯に利用可能な場所を選択（複数可）
                   </label>
                   <button
                     type="button"
                     onClick={() => setIsSuggestingLocation(!isSuggestingLocation)}
-                    className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800"
+                    className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
                   >
                     ＋ 新しい場所を提案する
                   </button>
@@ -478,8 +478,8 @@ export default function EventRespondPage({
 
                 {/* 新規場所提案フォーム */}
                 {isSuggestingLocation && (
-                  <div className="p-3 bg-white rounded-xl border border-indigo-200 space-y-2">
-                    <span className="text-[11px] font-bold text-indigo-900 block">
+                  <div className="p-3 bg-white dark:bg-slate-800/90 rounded-xl border border-indigo-200 dark:border-indigo-800/80 space-y-2">
+                    <span className="text-[11px] font-bold text-indigo-900 dark:text-indigo-300 block">
                       練習場所の新規提案
                     </span>
                     <input
@@ -487,34 +487,34 @@ export default function EventRespondPage({
                       placeholder="施設名・スタジオ名"
                       value={suggestName}
                       onChange={(e) => setSuggestName(e.target.value)}
-                      className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs"
+                      className="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
                     />
                     <input
                       type="text"
                       placeholder="住所や最寄駅 (任意)"
                       value={suggestAddress}
                       onChange={(e) => setSuggestAddress(e.target.value)}
-                      className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs"
+                      className="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
                     />
                     <input
                       type="url"
                       placeholder="Google Mapのリンク (任意)"
                       value={suggestMapUrl}
                       onChange={(e) => setSuggestMapUrl(e.target.value)}
-                      className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs"
+                      className="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
                     />
                     <div className="flex justify-end gap-2">
                       <button
                         type="button"
                         onClick={() => setIsSuggestingLocation(false)}
-                        className="px-2.5 py-1 text-xs text-slate-500"
+                        className="px-2.5 py-1 text-xs text-slate-500 dark:text-slate-400"
                       >
                         キャンセル
                       </button>
                       <button
                         type="button"
                         onClick={handleCreateSuggestion}
-                        className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-semibold"
+                        className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold"
                       >
                         登録して選択
                       </button>
@@ -533,15 +533,15 @@ export default function EventRespondPage({
                         key={loc.id}
                         className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs cursor-pointer transition-colors ${
                           isChecked
-                            ? "bg-indigo-50/70 border-indigo-300 text-indigo-950 font-semibold shadow-2xs"
-                            : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                            ? "bg-indigo-50/70 dark:bg-indigo-950/50 border-indigo-300 dark:border-indigo-800 text-indigo-950 dark:text-indigo-200 font-semibold shadow-2xs"
+                            : "bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/70"
                         }`}
                       >
                         <input
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => handleToggleLocation(loc.id)}
-                          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                          className="rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500"
                         />
                         <span className="truncate">{loc.name}</span>
                       </label>
@@ -564,12 +564,12 @@ export default function EventRespondPage({
 
             {/* 登録済み時間帯リスト */}
             <div className="space-y-3">
-              <label className="block text-xs font-bold text-slate-700">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                 登録済みの参加可能時間帯 ({timeSlots.length}件)
               </label>
 
               {timeSlots.length === 0 ? (
-                <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-xs">
+                <div className="text-center py-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-slate-400 text-xs">
                   まだ時間帯が登録されていません。上のフォームから追加してください。
                 </div>
               ) : (
@@ -581,21 +581,21 @@ export default function EventRespondPage({
                       return (
                         <div
                           key={slot.id}
-                          className="p-4 sm:p-5 rounded-2xl border-2 border-indigo-500 bg-indigo-50/25 space-y-4 shadow-sm"
+                          className="p-4 sm:p-5 rounded-2xl border-2 border-indigo-500 bg-indigo-50/25 dark:bg-indigo-950/40 space-y-4 shadow-sm"
                         >
-                          <div className="flex items-center justify-between border-b border-indigo-100 pb-2.5">
-                            <div className="flex items-center gap-2 text-xs font-bold text-indigo-950">
-                              <Pencil className="w-3.5 h-3.5 text-indigo-600" />
+                          <div className="flex items-center justify-between border-b border-indigo-100 dark:border-indigo-900/50 pb-2.5">
+                            <div className="flex items-center gap-2 text-xs font-bold text-indigo-950 dark:text-indigo-200">
+                              <Pencil className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                               <span>参加可能時間帯を編集</span>
                             </div>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 dark:bg-indigo-900/70 text-indigo-700 dark:text-indigo-300">
                               編集中
                             </span>
                           </div>
 
                           {/* 日付選択 */}
                           <div>
-                            <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                               日付を選択
                             </label>
                             {event.dateType === "candidate" && event.candidateDates ? (
@@ -608,7 +608,7 @@ export default function EventRespondPage({
                                     className={`px-3 py-1 rounded-xl text-xs font-semibold transition-colors ${
                                       editDate === date
                                         ? "bg-indigo-600 text-white shadow-xs"
-                                        : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                                        : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                                     }`}
                                   >
                                     {date}
@@ -622,7 +622,7 @@ export default function EventRespondPage({
                                 max={event.endDate}
                                 value={editDate}
                                 onChange={(e) => setEditDate(e.target.value)}
-                                className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs bg-white"
+                                className="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                               />
                             )}
                           </div>
@@ -630,13 +630,13 @@ export default function EventRespondPage({
                           {/* 時間範囲選択 (30分刻み) */}
                           <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                                 開始時刻 (30分刻み)
                               </label>
                               <select
                                 value={editStartTime}
                                 onChange={(e) => setEditStartTime(e.target.value)}
-                                className="w-full px-3 py-1.5 rounded-xl border border-slate-300 text-xs bg-white"
+                                className="w-full px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                               >
                                 {TIME_OPTIONS.map((t) => (
                                   <option key={t} value={t}>
@@ -646,13 +646,13 @@ export default function EventRespondPage({
                               </select>
                             </div>
                             <div>
-                              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                                 終了時刻 (30分刻み)
                               </label>
                               <select
                                 value={editEndTime}
                                 onChange={(e) => setEditEndTime(e.target.value)}
-                                className="w-full px-3 py-1.5 rounded-xl border border-slate-300 text-xs bg-white"
+                                className="w-full px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                               >
                                 {TIME_OPTIONS.map((t) => (
                                   <option key={t} value={t}>
@@ -664,15 +664,15 @@ export default function EventRespondPage({
                           </div>
 
                           {/* 練習場所選択 */}
-                          <div className="space-y-2 pt-1 border-t border-indigo-100/80">
+                          <div className="space-y-2 pt-1 border-t border-indigo-100/80 dark:border-indigo-900/60">
                             <div className="flex items-center justify-between">
-                              <label className="block text-[11px] font-bold text-slate-700">
+                              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">
                                 利用可能な練習場所を選択（複数可）
                               </label>
                               <button
                                 type="button"
                                 onClick={() => setIsSuggestingInEdit(!isSuggestingInEdit)}
-                                className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800"
+                                className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
                               >
                                 ＋ 新しい場所を提案する
                               </button>
@@ -680,8 +680,8 @@ export default function EventRespondPage({
 
                             {/* 編集中の新規場所提案フォーム */}
                             {isSuggestingInEdit && (
-                              <div className="p-3 bg-white rounded-xl border border-indigo-200 space-y-2">
-                                <span className="text-[11px] font-bold text-indigo-900 block">
+                              <div className="p-3 bg-white dark:bg-slate-800/90 rounded-xl border border-indigo-200 dark:border-indigo-800/80 space-y-2">
+                                <span className="text-[11px] font-bold text-indigo-900 dark:text-indigo-300 block">
                                   練習場所の新規提案
                                 </span>
                                 <input
@@ -689,34 +689,34 @@ export default function EventRespondPage({
                                   placeholder="施設名・スタジオ名"
                                   value={editSuggestName}
                                   onChange={(e) => setEditSuggestName(e.target.value)}
-                                  className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs"
+                                  className="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
                                 />
                                 <input
                                   type="text"
                                   placeholder="住所や最寄駅 (任意)"
                                   value={editSuggestAddress}
                                   onChange={(e) => setEditSuggestAddress(e.target.value)}
-                                  className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs"
+                                  className="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
                                 />
                                 <input
                                   type="url"
                                   placeholder="Google Mapのリンク (任意)"
                                   value={editSuggestMapUrl}
                                   onChange={(e) => setEditSuggestMapUrl(e.target.value)}
-                                  className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs"
+                                  className="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
                                 />
                                 <div className="flex justify-end gap-2">
                                   <button
                                     type="button"
                                     onClick={() => setIsSuggestingInEdit(false)}
-                                    className="px-2.5 py-1 text-xs text-slate-500"
+                                    className="px-2.5 py-1 text-xs text-slate-500 dark:text-slate-400"
                                   >
                                     キャンセル
                                   </button>
                                   <button
                                     type="button"
                                     onClick={handleCreateSuggestionInEdit}
-                                    className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-semibold"
+                                    className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold"
                                   >
                                     登録して選択
                                   </button>
@@ -735,15 +735,15 @@ export default function EventRespondPage({
                                     key={loc.id}
                                     className={`flex items-center gap-2 p-2 rounded-xl border text-xs cursor-pointer transition-colors ${
                                       isChecked
-                                        ? "bg-indigo-50/70 border-indigo-300 text-indigo-950 font-semibold shadow-2xs"
-                                        : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                                        ? "bg-indigo-50/70 dark:bg-indigo-950/50 border-indigo-300 dark:border-indigo-800 text-indigo-950 dark:text-indigo-200 font-semibold shadow-2xs"
+                                        : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                                     }`}
                                   >
                                     <input
                                       type="checkbox"
                                       checked={isChecked}
                                       onChange={() => handleToggleEditLocation(loc.id)}
-                                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                      className="rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500"
                                     />
                                     <span className="truncate">{loc.name}</span>
                                   </label>
@@ -753,11 +753,11 @@ export default function EventRespondPage({
                           </div>
 
                           {/* ボタン */}
-                          <div className="flex items-center justify-end gap-2 pt-2 border-t border-indigo-100">
+                          <div className="flex items-center justify-end gap-2 pt-2 border-t border-indigo-100 dark:border-indigo-900/60">
                             <button
                               type="button"
                               onClick={handleCancelEditSlot}
-                              className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 rounded-xl"
+                              className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
                             >
                               キャンセル
                             </button>
@@ -777,19 +777,19 @@ export default function EventRespondPage({
                     return (
                       <div
                         key={slot.id}
-                        className="p-3.5 rounded-xl border border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-2xs hover:border-slate-300 transition-colors"
+                        className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-800/70 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-2xs hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
                       >
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
-                            <Calendar className="w-3.5 h-3.5 text-indigo-600" />
+                          <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200">
+                            <Calendar className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                             <span>{slot.date}</span>
-                            <span className="text-slate-300">|</span>
-                            <Clock className="w-3.5 h-3.5 text-slate-400" />
+                            <span className="text-slate-300 dark:text-slate-600">|</span>
+                            <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                             <span>
                               {slot.startTime} 〜 {slot.endTime}
                             </span>
                           </div>
-                          <div className="flex flex-wrap gap-1.5 text-[11px] text-slate-600">
+                          <div className="flex flex-wrap gap-1.5 text-[11px] text-slate-600 dark:text-slate-400">
                             {slot.locations.map((locChoice) => {
                               const locObj = locations.find(
                                 (l) => l.id === locChoice.locationId
@@ -797,7 +797,7 @@ export default function EventRespondPage({
                               return (
                                 <span
                                   key={locChoice.locationId}
-                                  className="bg-slate-100 px-2 py-0.5 rounded border border-slate-200"
+                                  className="bg-slate-100 dark:bg-slate-700/70 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300"
                                 >
                                   {locObj?.name || "練習場所"}
                                 </span>
@@ -810,16 +810,16 @@ export default function EventRespondPage({
                           <button
                             type="button"
                             onClick={() => handleStartEditSlot(slot)}
-                            className="px-2.5 py-1 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 rounded-lg text-xs font-semibold inline-flex items-center gap-1 transition-colors"
+                            className="px-2.5 py-1 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 border border-slate-200 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-800 rounded-lg text-xs font-semibold inline-flex items-center gap-1 transition-colors"
                             title="この時間帯を編集"
                           >
-                            <Pencil className="w-3.5 h-3.5 text-indigo-600" />
+                            <Pencil className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                             <span>編集</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => handleRemoveTimeSlot(slot.id)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition-colors"
                             title="この時間帯を削除"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -835,8 +835,8 @@ export default function EventRespondPage({
         ) : null}
 
         {/* 3. コメント・メモ */}
-        <div className="space-y-2 pt-4 border-t border-slate-100">
-          <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+        <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
             3. コメント・連絡事項 (任意)
           </label>
           <textarea
@@ -844,15 +844,15 @@ export default function EventRespondPage({
             placeholder="遅刻・早退の可能性や希望などがあれば記入してください"
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
         {/* 保存ボタン */}
-        <div className="pt-4 flex items-center justify-between border-t border-slate-100">
+        <div className="pt-4 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
           <Link
             href={`/events/${event.id}`}
-            className="text-xs font-semibold text-slate-500 hover:text-slate-800"
+            className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
           >
             キャンセル
           </Link>
