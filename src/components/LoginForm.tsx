@@ -64,6 +64,7 @@ export function LoginForm() {
               <input
                 type="text"
                 required
+                placeholder="IDを入力"
                 value={id}
                 onChange={(e) => setId(e.target.value)}
                 className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
