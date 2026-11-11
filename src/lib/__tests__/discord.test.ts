@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { sendContactToAdminDm, ContactMessagePayload } from "../discord";
+import {
+  sendContactToAdminDm,
+  ContactMessagePayload,
+  sendScheduleNotificationToChannel,
+  ScheduleNotificationPayload,
+} from "../discord";
 
 describe("Discord Contact DM Notification", () => {
   const originalEnv = process.env;
@@ -149,5 +154,125 @@ describe("Discord Contact DM Notification", () => {
 
     expect(res.success).toBe(false);
     expect(res.error).toContain("403");
+  });
+});
+
+describe("Discord Schedule Notification to Channel", () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    vi.resetModules();
+    process.env = {
+      ...originalEnv,
+      DISCORD_BOT_TOKEN: "mock-bot-token",
+      DISCORD_SCHEDULE_CHANNEL_ID: "1317372821277773835",
+    };
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+    vi.restoreAllMocks();
+  });
+
+  it("event_created: 新規日程調整作成時にタイトル・リンク・詳細が含まれて送信される", async () => {
+    let capturedBody: unknown = null;
+    let targetUrl: string = "";
+
+    const mockFetch = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+      targetUrl = url.toString();
+      capturedBody = JSON.parse(init?.body as string);
+      return { ok: true, status: 200, json: async () => ({ id: "msg-1" }) } as Response;
+    });
+
+    const payload: ScheduleNotificationPayload = {
+      type: "event_created",
+      eventId: "ev-100",
+      eventTitle: "12月クリスマス練習",
+      organizerNickname: "けんちゃん",
+      durationMinutes: 120,
+      deadline: "2026-12-05T00:00:00.000Z",
+      eventUrl: "https://acappella-app.vercel.app/events/ev-100",
+    };
+
+    const res = await sendScheduleNotificationToChannel(payload, mockFetch as unknown as typeof fetch);
+
+    expect(res.success).toBe(true);
+    expect(targetUrl).toContain("/channels/1317372821277773835/messages");
+
+    const body = capturedBody as {
+      embeds: Array<{
+        title: string;
+        fields: Array<{ name: string; value: string }>;
+      }>;
+    };
+    expect(body.embeds[0].title).toContain("【新規日程調整】12月クリスマス練習");
+    const linkField = body.embeds[0].fields.find((f) => f.name.includes("日程調整ページ"));
+    expect(linkField?.value).toContain("https://acappella-app.vercel.app/events/ev-100");
+  });
+
+  it("event_confirmed: 日程確定時に確定日時・場所・参加人数・リンクが含まれて送信される", async () => {
+    let capturedBody: unknown = null;
+
+    const mockFetch = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+      capturedBody = JSON.parse(init?.body as string);
+      return { ok: true, status: 200, json: async () => ({ id: "msg-2" }) } as Response;
+    });
+
+    const payload: ScheduleNotificationPayload = {
+      type: "event_confirmed",
+      eventId: "ev-200",
+      eventTitle: "12月定期練習",
+      confirmedDate: "2026-12-15",
+      confirmedTime: "13:00 〜 15:00",
+      confirmedLocationName: "サウンドスタジオ NOAH 渋谷店",
+      confirmedAttendeesCount: 6,
+      eventUrl: "https://acappella-app.vercel.app/events/ev-200",
+    };
+
+    const res = await sendScheduleNotificationToChannel(payload, mockFetch as unknown as typeof fetch);
+
+    expect(res.success).toBe(true);
+
+    const body = capturedBody as {
+      embeds: Array<{
+        title: string;
+        fields: Array<{ name: string; value: string }>;
+      }>;
+    };
+    expect(body.embeds[0].title).toContain("【練習日程・場所が確定しました】");
+    const dateField = body.embeds[0].fields.find((f) => f.name === "確定日時");
+    expect(dateField?.value).toContain("2026-12-15 13:00 〜 15:00");
+    const locField = body.embeds[0].fields.find((f) => f.name === "練習場所");
+    expect(locField?.value).toContain("サウンドスタジオ NOAH 渋谷店");
+    const linkField = body.embeds[0].fields.find((f) => f.name.includes("日程調整ページ"));
+    expect(linkField?.value).toContain("https://acappella-app.vercel.app/events/ev-200");
+  });
+
+  it("voting_started & deadline reminders: 投票開始や期限リマインド通知が正しく送信される", async () => {
+    const mockFetch = vi.fn(async () => {
+      return { ok: true, status: 200, json: async () => ({ id: "msg-3" }) } as Response;
+    });
+
+    const resVoting = await sendScheduleNotificationToChannel(
+      {
+        type: "voting_started",
+        eventId: "ev-300",
+        eventTitle: "合宿日程調整",
+        votingDeadline: "2026-12-10T12:00:00.000Z",
+      },
+      mockFetch as unknown as typeof fetch
+    );
+    expect(resVoting.success).toBe(true);
+
+    const resReminder = await sendScheduleNotificationToChannel(
+      {
+        type: "deadline_reminder_1d",
+        eventId: "ev-300",
+        eventTitle: "合宿日程調整",
+        deadline: "2026-12-08T12:00:00.000Z",
+      },
+      mockFetch as unknown as typeof fetch
+    );
+    expect(resReminder.success).toBe(true);
   });
 });

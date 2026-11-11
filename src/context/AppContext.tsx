@@ -16,6 +16,8 @@ import { authenticateUser, validateAndCreateUser, resetUserPasswordHelper, DEFAU
 import { canManageLocation, validateLocation } from "@/lib/location";
 import { toggleVote } from "@/lib/voting";
 import { supabase } from "@/lib/supabase";
+import { triggerDiscordNotification } from "@/lib/notifyClient";
+import { evaluateEventReminders } from "@/lib/reminders";
 
 interface AppContextType {
   currentUser: User | null;
@@ -292,6 +294,33 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, [isLoaded, candidateSlots, finalVotes]);
 
+  // 回答期限・投票期限の自動リマインダー通知 (残り3日、残り1日)
+  useEffect(() => {
+    if (!isLoaded || events.length === 0) return;
+    try {
+      const NOTIFIED_KEY = "acappella_sent_reminders";
+      const stored = localStorage.getItem(NOTIFIED_KEY);
+      const sentKeys = new Set<string>(stored ? JSON.parse(stored) : []);
+
+      const reminders = evaluateEventReminders(events, new Date(), sentKeys);
+      if (reminders.length > 0) {
+        reminders.forEach((item) => {
+          triggerDiscordNotification({
+            type: item.type,
+            eventId: item.eventId,
+            eventTitle: item.eventTitle,
+            deadline: item.deadline,
+            votingDeadline: item.votingDeadline,
+          });
+          sentKeys.add(item.reminderKey);
+        });
+        localStorage.setItem(NOTIFIED_KEY, JSON.stringify(Array.from(sentKeys)));
+      }
+    } catch (e) {
+      console.warn("Reminder check error:", e);
+    }
+  }, [isLoaded, events]);
+
   // ログイン処理
   const login = (id: string, password: string): { success: boolean; message?: string } => {
     const res = authenticateUser(users, id, password);
@@ -421,6 +450,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       })
       .then();
 
+    // Discord 日程連絡チャンネルへ通知
+    triggerDiscordNotification({
+      type: "event_created",
+      eventId: newEvent.id,
+      eventTitle: newEvent.title,
+      organizerNickname: currentUser?.nickname,
+      durationMinutes: newEvent.durationMinutes,
+      deadline: newEvent.deadline,
+    });
+
     return newEvent;
   };
 
@@ -456,6 +495,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       })
       .eq("id", eventId)
       .then();
+
+    // 日程確定時のDiscord通知
+    if (status === "confirmed") {
+      const targetEvent = events.find((e) => e.id === eventId);
+      const cands = candidateSlots[eventId] || [];
+      const slot = cands.find((c) => c.id === (targetCandidateId || targetEvent?.confirmedCandidateId));
+      if (targetEvent && slot) {
+        const loc = locations.find((l) => l.id === slot.locationId);
+        triggerDiscordNotification({
+          type: "event_confirmed",
+          eventId,
+          eventTitle: targetEvent.title,
+          confirmedDate: slot.date,
+          confirmedTime: `${slot.startTime} 〜 ${slot.endTime}`,
+          confirmedLocationName: loc?.name || "未定",
+          confirmedAttendeesCount: slot.attendeeCount,
+        });
+      }
+    }
   };
 
   // 最終投票期限の更新
@@ -708,6 +766,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         })
         .eq("id", eventId)
         .then();
+
+      // 最終投票開始のDiscord通知
+      const candSummary = result.candidates
+        .map((c, idx) => {
+          const loc = locations.find((l) => l.id === c.locationId);
+          return `・候補${idx + 1}: ${c.date} ${c.startTime}〜${c.endTime} (${loc?.name || "未定"}) [${c.attendeeCount}名可]`;
+        })
+        .join("\n");
+
+      triggerDiscordNotification({
+        type: "voting_started",
+        eventId,
+        eventTitle: targetEvent.title,
+        votingDeadline: defaultVotingDeadline,
+        candidateSummary: candSummary,
+      });
     } else {
       updateEventStatus(eventId, "aggregated");
     }
