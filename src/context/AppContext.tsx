@@ -82,6 +82,40 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const SESSION_USER_ID_KEY = "acappella_session_user_id";
+const LOCATION_RESERVATIONS_KEY = "acappella_location_reservations";
+
+// Supabaseテーブルに reservation_url カラムがない場合でも即時永続化するためのローカルキャッシュヘルパー
+function getLocalReservationMap(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(LOCATION_RESERVATIONS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveLocalReservation(locationId: string, url?: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const map = getLocalReservationMap();
+    if (url && url.trim()) {
+      map[locationId] = url.trim();
+    } else {
+      delete map[locationId];
+    }
+    localStorage.setItem(LOCATION_RESERVATIONS_KEY, JSON.stringify(map));
+  } catch {}
+}
+
+function removeLocalReservation(locationId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const map = getLocalReservationMap();
+    delete map[locationId];
+    localStorage.setItem(LOCATION_RESERVATIONS_KEY, JSON.stringify(map));
+  } catch {}
+}
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -151,6 +185,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (locsRes.data && !locsRes.error) {
+          const localMap = getLocalReservationMap();
           setLocations(
             locsRes.data.map((l: any) => ({
               id: l.id,
@@ -158,7 +193,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               address: l.address || undefined,
               memo: l.memo || undefined,
               mapUrl: l.map_url || undefined,
-              reservationUrl: l.reservation_url || undefined,
+              reservationUrl: l.reservation_url || localMap[l.id] || undefined,
               createdBy: l.created_by || undefined,
               createdAt: l.created_at,
             }))
@@ -605,6 +640,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       createdAt: new Date().toISOString(),
     };
     setLocations((prev) => [...prev, newLoc]);
+    saveLocalReservation(newLoc.id, newLoc.reservationUrl);
 
     // Supabase に保存
     const insertPayload: Record<string, any> = {
@@ -677,6 +713,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setLocations((prev) =>
       prev.map((l) => (l.id === locationId ? { ...l, ...updatedLoc } : l))
     );
+    if (updatedLoc.reservationUrl !== undefined) {
+      saveLocalReservation(locationId, updatedLoc.reservationUrl);
+    }
 
     // Supabase に更新保存
     const updatePayload: Record<string, any> = {
@@ -717,6 +756,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
 
     setLocations((prev) => prev.filter((l) => l.id !== locationId));
+    removeLocalReservation(locationId);
 
     // Supabase から削除
     supabase.from("locations").delete().eq("id", locationId).then();
