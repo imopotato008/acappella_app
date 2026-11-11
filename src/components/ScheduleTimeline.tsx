@@ -2,8 +2,15 @@
 
 import React, { useMemo, useState } from "react";
 import { Event, EventResponse, Location, User } from "@/types";
-import { Calendar, Clock, MapPin, Sparkles, Users } from "lucide-react";
-import { minutesToTime, timeToMinutes } from "@/lib/aggregation";
+import { Calendar, Clock, MapPin, Sparkles } from "lucide-react";
+import { timeToMinutes } from "@/lib/aggregation";
+import {
+  getAvailableDates,
+  getLocationsForDate,
+  calculateTimelineRange,
+  calculateTimelineOverlap,
+  isSlotMatchingDateAndLocation,
+} from "@/lib/timeline";
 
 interface ScheduleTimelineProps {
   event: Event;
@@ -20,43 +27,27 @@ export function ScheduleTimeline({
 }: ScheduleTimelineProps) {
   // 候補日の一覧を取得
   const availableDates = useMemo(() => {
-    const dates = new Set<string>();
-    if (event.candidateDates && event.candidateDates.length > 0) {
-      event.candidateDates.forEach((d) => dates.add(d));
-    }
-    responses.forEach((r) => {
-      r.timeSlots.forEach((s) => dates.add(s.date));
-    });
-    const sorted = Array.from(dates).sort();
-    return sorted.length > 0 ? sorted : ["2026-12-05"];
-  }, [event.candidateDates, responses]);
+    return getAvailableDates(event, responses);
+  }, [event, responses]);
 
   const [selectedDate, setSelectedDate] = useState<string>(availableDates[0]);
+  const [selectedLocationId, setSelectedLocationId] = useState<string>("all");
 
-  // 表示する時間範囲の計算 (デフォルト 09:00 〜 22:00)
+  // 選択日における場所一覧と参加可能人数
+  const locationOptions = useMemo(() => {
+    return getLocationsForDate(selectedDate, responses, locations);
+  }, [selectedDate, responses, locations]);
+
+  // 選択中の練習場所名
+  const selectedLocationName = useMemo(() => {
+    if (selectedLocationId === "all") return "すべての場所";
+    return locations.find((l) => l.id === selectedLocationId)?.name || "指定なし";
+  }, [selectedLocationId, locations]);
+
+  // 表示する時間範囲の計算
   const { startHour, endHour, totalMinutes } = useMemo(() => {
-    let minM = 9 * 60; // 09:00
-    let maxM = 22 * 60; // 22:00
-
-    responses.forEach((r) => {
-      r.timeSlots
-        .filter((s) => s.date === selectedDate)
-        .forEach((s) => {
-          const sM = timeToMinutes(s.startTime);
-          const eM = timeToMinutes(s.endTime);
-          if (sM < minM) minM = Math.floor(sM / 60) * 60;
-          if (eM > maxM) maxM = Math.ceil(eM / 60) * 60;
-        });
-    });
-
-    const sH = minM / 60;
-    const eH = maxM / 60;
-    return {
-      startHour: sH,
-      endHour: eH,
-      totalMinutes: (eH - sH) * 60,
-    };
-  }, [responses, selectedDate]);
+    return calculateTimelineRange(selectedDate, responses, selectedLocationId);
+  }, [selectedDate, responses, selectedLocationId]);
 
   // 時間ヘッダーの配列 [9, 10, 11, ... 22]
   const hours = useMemo(() => {
@@ -67,91 +58,116 @@ export function ScheduleTimeline({
     return list;
   }, [startHour, endHour]);
 
-  // 30分刻みの重なり人数（Overlap）サマリーの計算
+  // 重なり人数（Overlap）サマリー
   const overlapSummary = useMemo(() => {
-    const step = 30;
-    const slots: { timeStr: string; startM: number; count: number }[] = [];
-    let maxCount = 0;
-
-    for (let m = startHour * 60; m < endHour * 60; m += step) {
-      const slotStart = m;
-      const slotEnd = m + step;
-      let count = 0;
-
-      responses.forEach((r) => {
-        if (!r.canAttend) return;
-        const matches = r.timeSlots.some((s) => {
-          if (s.date !== selectedDate) return false;
-          const sStart = timeToMinutes(s.startTime);
-          const sEnd = timeToMinutes(s.endTime);
-          return sStart < slotEnd && sEnd > slotStart;
-        });
-        if (matches) count++;
-      });
-
-      if (count > maxCount) maxCount = count;
-      slots.push({
-        timeStr: minutesToTime(slotStart),
-        startM: slotStart,
-        count,
-      });
-    }
-
-    return { slots, maxCount };
-  }, [responses, selectedDate, startHour, endHour]);
+    return calculateTimelineOverlap(
+      selectedDate,
+      selectedLocationId,
+      responses,
+      startHour,
+      endHour
+    );
+  }, [selectedDate, selectedLocationId, responses, startHour, endHour]);
 
   return (
     <div className="space-y-4">
-      {/* 候補日タブ一覧 */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-100 dark:border-slate-800 scrollbar-none">
-        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0 mr-1 flex items-center gap-1">
-          <Calendar className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-          候補日を選択:
-        </span>
-        {availableDates.map((dateStr) => {
-          const isSelected = dateStr === selectedDate;
-          const dateObj = new Date(dateStr);
-          const dayName = ["日", "月", "火", "水", "木", "金", "土"][dateObj.getDay()];
+      {/* 候補日 ＆ 練習場所 選択エリア */}
+      <div className="bg-slate-50/70 dark:bg-slate-900/60 p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+        {/* 1. 候補日タブ一覧 */}
+        <div className="space-y-1.5">
+          <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+            <span>1. 候補日を選択:</span>
+          </div>
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            {availableDates.map((dateStr) => {
+              const isSelected = dateStr === selectedDate;
+              const dateObj = new Date(dateStr);
+              const dayName = ["日", "月", "火", "水", "木", "金", "土"][dateObj.getDay()];
 
-          // この日に参加可能と答えている人数
-          const attendCount = responses.filter(
-            (r) => r.canAttend && r.timeSlots.some((s) => s.date === dateStr)
-          ).length;
+              const attendCount = responses.filter(
+                (r) => r.canAttend && r.timeSlots?.some((s) => s.date === dateStr)
+              ).length;
 
-          return (
-            <button
-              key={dateStr}
-              type="button"
-              onClick={() => setSelectedDate(dateStr)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 inline-flex items-center gap-1.5 ${
-                isSelected
-                  ? "bg-indigo-600 text-white shadow-xs shadow-indigo-200"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
-              }`}
-            >
-              <span>{dateStr} ({dayName})</span>
-              <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                  isSelected ? "bg-white/20 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
-                }`}
-              >
-                {attendCount}名可
-              </span>
-            </button>
-          );
-        })}
+              return (
+                <button
+                  key={dateStr}
+                  type="button"
+                  onClick={() => setSelectedDate(dateStr)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 inline-flex items-center gap-1.5 ${
+                    isSelected
+                      ? "bg-indigo-600 text-white shadow-xs shadow-indigo-200"
+                      : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
+                  }`}
+                >
+                  <span>{dateStr} ({dayName})</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                      isSelected ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                    }`}
+                  >
+                    {attendCount}名可
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 2. 練習場所ピル一覧 */}
+        <div className="space-y-1.5 pt-2 border-t border-slate-200/60 dark:border-slate-800/80">
+          <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+            <span>2. 練習場所を選択（候補日＋場所）:</span>
+          </div>
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            {locationOptions.map((opt) => {
+              const isSelected = opt.id === selectedLocationId;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setSelectedLocationId(opt.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 inline-flex items-center gap-1.5 ${
+                    isSelected
+                      ? "bg-gradient-to-r from-rose-500 to-indigo-600 text-white shadow-xs"
+                      : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
+                  }`}
+                >
+                  <span>{opt.name}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                      isSelected ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                    }`}
+                  >
+                    {opt.attendCount}名
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* タイムラインコンテナ */}
       <div className="bg-slate-50/60 dark:bg-slate-900/80 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 space-y-3 overflow-hidden">
-        <div className="flex items-center justify-between text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-1.5">
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            <span className="font-bold text-slate-800 dark:text-slate-200">
-              {selectedDate} の空き時間・重なり状況
-            </span>
+            <Clock className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="font-bold text-slate-900 dark:text-slate-100">
+                {selectedDate}
+              </span>
+              <span className="text-slate-400">×</span>
+              <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-800">
+                {selectedLocationName}
+              </span>
+              <span className="text-slate-500 dark:text-slate-400">
+                の空き時間・重なり状況
+              </span>
+            </div>
           </div>
-          <span className="text-[11px] text-slate-500 dark:text-slate-400">
+          <span className="text-[11px] text-slate-400 dark:text-slate-500">
             横スクロールで時間帯を確認できます
           </span>
         </div>
@@ -175,7 +191,7 @@ export function ScheduleTimeline({
               ))}
             </div>
 
-            {/* 重なり（Overlap）サマリーバー：何人重なっているかのヒートマップ */}
+            {/* 重なり（Overlap）サマリーバー */}
             <div className="flex items-center py-1.5 pl-28 pr-4 bg-indigo-50/50 dark:bg-indigo-950/40 rounded-xl border border-indigo-100/80 dark:border-indigo-900/50">
               <div className="w-28 -ml-28 pr-2 flex items-center gap-1 text-[11px] font-bold text-indigo-900 dark:text-indigo-200 shrink-0">
                 <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
@@ -218,8 +234,13 @@ export function ScheduleTimeline({
                 const isNoResponse = !res;
                 const isCannotAttend = res && !res.canAttend;
                 const memberSlots = res
-                  ? res.timeSlots.filter((s) => s.date === selectedDate)
+                  ? res.timeSlots?.filter((s) => s.date === selectedDate) || []
                   : [];
+
+                // 選択された場所に合致するスロット
+                const matchingSlots = memberSlots.filter((s) =>
+                  isSlotMatchingDateAndLocation(s, selectedDate, selectedLocationId)
+                );
 
                 return (
                   <div
@@ -264,9 +285,13 @@ export function ScheduleTimeline({
                         <div className="absolute inset-0 flex items-center justify-center text-[10px] text-slate-400 dark:text-slate-500">
                           この日の希望なし
                         </div>
+                      ) : matchingSlots.length === 0 ? (
+                        <div className="absolute inset-0 flex items-center justify-center text-[10px] text-amber-500/80 dark:text-amber-400/80 font-medium bg-amber-50/30 dark:bg-amber-950/20">
+                          この場所は参加不可
+                        </div>
                       ) : (
                         // 回答された時間帯バーを描画
-                        memberSlots.map((slot) => {
+                        matchingSlots.map((slot) => {
                           const sM = timeToMinutes(slot.startTime);
                           const eM = timeToMinutes(slot.endTime);
                           const leftPct = Math.max(
@@ -280,7 +305,7 @@ export function ScheduleTimeline({
 
                           // 利用可能場所の名称リスト
                           const locNames = slot.locations
-                            .map((l) => locations.find((loc) => loc.id === l.locationId)?.name)
+                            ?.map((l) => locations.find((loc) => loc.id === l.locationId)?.name)
                             .filter(Boolean)
                             .join(", ");
 
@@ -309,29 +334,7 @@ export function ScheduleTimeline({
             </div>
           </div>
         </div>
-
-        {/* タイムライン凡例 */}
-        <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-200/60 dark:border-slate-800 flex-wrap gap-2">
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1">
-              <span className="w-3 h-3 rounded bg-indigo-600 inline-block" />
-              最多重なり（練習おすすめ枠）
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-3 h-3 rounded bg-indigo-500 inline-block" />
-              参加可能時間帯
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-3 h-3 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 inline-block" />
-              未回答 / 不参加
-            </span>
-          </div>
-          <span className="text-[10px] text-slate-400 dark:text-slate-500">
-            ※バーの上にカーソルを合わせると利用可能な練習場所の詳細が表示されます
-          </span>
-        </div>
       </div>
     </div>
   );
 }
-
