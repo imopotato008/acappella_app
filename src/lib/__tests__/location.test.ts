@@ -94,6 +94,28 @@ describe("Location management helper functions", () => {
       expect(getTargetMapUrl(loc)).toBe("https://maps.app.goo.gl/AbCdEfGh12345");
     });
 
+    it("埋め込み専用URL（google.com/maps/embed）が登録されている場合は、直接開くとエラーになるため名前と住所の検索URLを生成する", () => {
+      const loc = {
+        name: "スタジオペンタ",
+        address: "東京都豊島区東池袋1-1-1",
+        mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d12345",
+      };
+      const url = getTargetMapUrl(loc);
+      expect(url).toContain("https://www.google.com/maps/search/?api=1&query=");
+      expect(url).toContain(encodeURIComponent("スタジオペンタ 東京都豊島区東池袋1-1-1"));
+    });
+
+    it("iframeタグが登録されている場合も、抽出された埋め込みURLではなく名前と住所の検索URLを生成する", () => {
+      const loc = {
+        name: "ベースオントップ",
+        address: "東京都新宿区",
+        mapUrl: '<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d999" width="600" height="450"></iframe>',
+      };
+      const url = getTargetMapUrl(loc);
+      expect(url).toContain("https://www.google.com/maps/search/?api=1&query=");
+      expect(url).toContain(encodeURIComponent("ベースオントップ 東京都新宿区"));
+    });
+
     it("mapUrlが未登録で住所がある場合は、名前と住所でGoogle Maps検索URLを生成する", () => {
       const loc = {
         name: "新宿村スタジオ",

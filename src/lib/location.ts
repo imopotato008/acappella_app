@@ -50,7 +50,8 @@ export function isEmbedMapHtml(input?: string): boolean {
   const trimmed = input.trim();
   return (
     /<iframe[\s\S]*src=["'][^"']+["'][\s\S]*>/i.test(trimmed) ||
-    trimmed.includes("google.com/maps/embed")
+    trimmed.includes("google.com/maps/embed") ||
+    trimmed.includes("output=embed")
   );
 }
 
@@ -65,7 +66,9 @@ export function getEmbedMapUrl(input?: string): string | null {
 
 /**
  * 練習場所のGoogle Mapリンク先を取得
- * ユーザーが登録した mapUrl があればそれを最優先で返し、未登録の場合のみ名前・住所で検索URLを自動生成する
+ * - 登録された mapUrl があり、かつ埋め込み専用URL（google.com/maps/embed 等）でなければそれを返す
+ * - 埋め込み専用URLまたは未登録の場合は、施設名と住所からスマホアプリ・ブラウザで確実に開く
+ *   Google Maps公式検索URL (https://www.google.com/maps/search/?api=1&query=...) を生成する
  */
 export function getTargetMapUrl(location: {
   name: string;
@@ -73,7 +76,10 @@ export function getTargetMapUrl(location: {
   mapUrl?: string;
 }): string {
   const cleanedUrl = location.mapUrl ? extractUrlFromInput(location.mapUrl) : "";
-  if (cleanedUrl) {
+  const isEmbedOnly =
+    cleanedUrl.includes("google.com/maps/embed") || cleanedUrl.includes("output=embed");
+
+  if (cleanedUrl && !isEmbedOnly) {
     return cleanedUrl;
   }
   const query = location.address
