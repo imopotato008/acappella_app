@@ -12,7 +12,6 @@ import {
   Clock,
   Crown,
   ExternalLink,
-  FastForward,
   Gavel,
   Hourglass,
   MapPin,
@@ -42,7 +41,6 @@ export default function EventVotePage({
     calculateAggregation,
     castVote,
     updateEventStatus,
-    updateVotingDeadline,
   } = useApp();
 
   const event = events.find((e) => e.id === eventId);
@@ -108,15 +106,6 @@ export default function EventVotePage({
       updateEventStatus(event.id, "booking_pending", candidateId);
       alert("候補が選択され、「予約待ち」ステータスになりました！詳細画面でスタジオ予約を行ってください。");
       router.push(`/events/${event.id}`);
-    }
-  };
-
-  // 幹事用：テスト用即時締め切り
-  const handleExpireDeadlineImmediately = () => {
-    if (confirm("【テスト用】投票期限を今すぐ過去（終了）に設定しますか？\n（期限終了後の自動確定または同票時幹事決定の挙動を即座にテストできます）")) {
-      // 1分前の日時に更新
-      const past = new Date(Date.now() - 60 * 1000).toISOString();
-      updateVotingDeadline(event.id, past);
     }
   };
 
@@ -197,19 +186,6 @@ export default function EventVotePage({
                   {isDeadlinePassed ? "期限終了 (確定処理フェーズ)" : "投票受付中 (期限内は確定不可)"}
                 </span>
               </div>
-
-              {/* 幹事専用：テスト用即時締め切りボタン */}
-              {isOrganizer && !isDeadlinePassed && (
-                <button
-                  type="button"
-                  onClick={handleExpireDeadlineImmediately}
-                  className="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-indigo-300 dark:border-indigo-700 rounded-lg text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 inline-flex items-center gap-1 transition-colors shrink-0"
-                  title="テスト用に期限切れをシミュレート"
-                >
-                  <FastForward className="w-3 h-3 text-indigo-500" />
-                  テスト用: 期限を今すぐ終了にする
-                </button>
-              )}
             </div>
 
             <p className="text-[11px] text-slate-600 dark:text-slate-400">
