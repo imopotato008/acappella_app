@@ -543,36 +543,8 @@ function LocationsContent() {
                   </div>
                 </div>
 
-                {/* Google Map & 予約サイト 連携エリア */}
-                {selectedLoc.reservationUrl && (
-                  <div className="p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300">
-                        <Globe className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-emerald-900 dark:text-emerald-200">
-                          スタジオ・施設のWeb予約
-                        </div>
-                        <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-mono truncate max-w-xs sm:max-w-md">
-                          {selectedLoc.reservationUrl}
-                        </div>
-                      </div>
-                    </div>
-                    <a
-                      href={formatWebUrl(selectedLoc.reservationUrl)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors shadow-xs shrink-0"
-                    >
-                      <span>予約サイトを開く</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                )}
-
                 {embedMapUrl ? (
-                  /* HTMLコードが登録されている場合：埋め込みMapを自動表示 ＋ Mapで開くボタン */
+                  /* HTMLコードが登録されている場合：埋め込みMapを自動表示 ＋ Mapで開くボタン ＋ 予約サイトボタン */
                   <div className="space-y-3">
                     <div className="w-full h-80 sm:h-96 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 shadow-inner">
                       <iframe
@@ -595,9 +567,21 @@ function LocationsContent() {
                       <span>Google Mapで開く（別タブ/アプリ）</span>
                       <ExternalLink className="w-3.5 h-3.5 opacity-70" />
                     </a>
+                    {selectedLoc.reservationUrl && (
+                      <a
+                        href={formatWebUrl(selectedLoc.reservationUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-3 px-4 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-bold text-xs sm:text-sm rounded-xl transition-colors inline-flex items-center justify-center gap-2 group"
+                      >
+                        <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
+                        <span>予約サイトを開く</span>
+                        <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+                      </a>
+                    )}
                   </div>
                 ) : (
-                  /* 基本：Mapで開くボタンのみを表示 */
+                  /* 基本：Mapで開くボタン ＋ 予約サイトボタン */
                   <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50 space-y-3">
                     {selectedLoc.mapUrl && (
                       <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono break-all line-clamp-1 bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
@@ -615,6 +599,18 @@ function LocationsContent() {
                       <span>Google Mapで開く（別タブ/アプリ）</span>
                       <ExternalLink className="w-4 h-4 opacity-80" />
                     </a>
+                    {selectedLoc.reservationUrl && (
+                      <a
+                        href={formatWebUrl(selectedLoc.reservationUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-3.5 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-base rounded-2xl shadow-md hover:shadow-lg transition-all inline-flex items-center justify-center gap-2.5 group"
+                      >
+                        <Globe className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        <span>予約サイトを開く</span>
+                        <ExternalLink className="w-4 h-4 opacity-80" />
+                      </a>
+                    )}
                   </div>
                 )}
 
