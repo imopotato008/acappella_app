@@ -79,6 +79,7 @@
     --color-rose-500: oklch(64.5% 0.246 16.439);
     --color-rose-600: oklch(58.6% 0.253 17.585);
     --color-rose-700: oklch(51.4% 0.222 16.935);
+    --color-rose-800: oklch(45.5% 0.188 13.697);
     --color-rose-900: oklch(41% 0.159 10.272);
     --color-rose-950: oklch(27.1% 0.105 12.094);
     --color-slate-50: oklch(98.4% 0.003 247.858);
@@ -1860,6 +1861,9 @@
     .hover\:bg-rose-50:hover {
       background-color: var(--color-rose-50);
     }
+    .hover\:bg-rose-100:hover {
+      background-color: var(--color-rose-100);
+    }
     .hover\:bg-slate-50:hover {
       background-color: var(--color-slate-50);
     }
@@ -2191,6 +2195,9 @@
   .dark\:border-purple-800:where(.dark, .dark *) {
     border-color: var(--color-purple-800);
   }
+  .dark\:border-rose-800:where(.dark, .dark *) {
+    border-color: var(--color-rose-800);
+  }
   .dark\:border-rose-900:where(.dark, .dark *) {
     border-color: var(--color-rose-900);
   }
@@ -2384,6 +2391,12 @@
     background-color: color-mix(in srgb, oklch(27.1% 0.105 12.094) 40%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-rose-950) 40%, transparent);
+    }
+  }
+  .dark\:bg-rose-950\/50:where(.dark, .dark *) {
+    background-color: color-mix(in srgb, oklch(27.1% 0.105 12.094) 50%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-rose-950) 50%, transparent);
     }
   }
   .dark\:bg-rose-950\/60:where(.dark, .dark *) {
@@ -2666,6 +2679,14 @@
     @supports (color: color-mix(in lab, red, red)) {
       .dark\:hover\:bg-indigo-950\/50:where(.dark, .dark *):hover {
         background-color: color-mix(in oklab, var(--color-indigo-950) 50%, transparent);
+      }
+    }
+    .dark\:hover\:bg-rose-900\/50:where(.dark, .dark *):hover {
+      background-color: color-mix(in srgb, oklch(41% 0.159 10.272) 50%, transparent);
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+      .dark\:hover\:bg-rose-900\/50:where(.dark, .dark *):hover {
+        background-color: color-mix(in oklab, var(--color-rose-900) 50%, transparent);
       }
     }
     .dark\:hover\:bg-rose-950\/40:where(.dark, .dark *):hover {

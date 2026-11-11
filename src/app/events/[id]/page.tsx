@@ -27,6 +27,7 @@ import {
 import { EventStatus } from "@/types";
 import { ScheduleTimeline } from "@/components/ScheduleTimeline";
 import { formatWebUrl } from "@/lib/location";
+import { getNextCandidateSlot } from "@/lib/booking";
 
 export default function EventDetailPage({
   params,
@@ -44,6 +45,7 @@ export default function EventDetailPage({
     responses,
     locations,
     candidateSlots,
+    finalVotes,
     calculateAggregation,
     deleteEvent,
     updateEventStatus,
@@ -99,6 +101,41 @@ export default function EventDetailPage({
     if (confirm("練習場所の予約が完了しましたか？\nステータスを「確定済み」に更新し、メンバー全員に確定案内を共有します。")) {
       updateEventStatus(event.id, "confirmed", confirmedSlot.id);
       alert("練習日程・場所が「確定済み」になりました！メンバーに共有されました。");
+    }
+  };
+
+  // 予約不可ハンドラ（幹事用：次点候補へ繰り上げ）
+  const handleMarkBookingFailed = () => {
+    if (!event) return;
+    const eventVotes = finalVotes.filter((v) => v.eventId === event.id);
+    const nextSlot = getNextCandidateSlot(
+      eventCandidates,
+      event.confirmedCandidateId,
+      eventVotes
+    );
+
+    if (nextSlot) {
+      const nextLoc = locations.find((l) => l.id === nextSlot.locationId);
+      const locName = nextLoc ? nextLoc.name : "未定";
+      if (
+        confirm(
+          `この練習場所の予約が取れなかったため、次点候補へ繰り上げますか？\n\n【次の練習候補】\n日時: ${nextSlot.date} ${nextSlot.startTime}〜${nextSlot.endTime}\n場所: ${locName} (${nextSlot.attendeeCount}名参加可能)\n\nステータスは「予約待ち」を継続します。`
+        )
+      ) {
+        updateEventStatus(event.id, "booking_pending", nextSlot.id);
+        alert(
+          `次点候補（${nextSlot.date} ${nextSlot.startTime}〜 ${locName}）に切り替えました！新しい場所の予約を行ってください。`
+        );
+      }
+    } else {
+      if (
+        confirm(
+          "これ以上の代替候補がありません。\nステータスを「回答受付中」に戻して、候補日の追加やメンバーの再回答を受け付けますか？"
+        )
+      ) {
+        updateEventStatus(event.id, "open");
+        alert("ステータスを「回答受付中」に戻しました。メンバーに再調整を呼びかけてください。");
+      }
     }
   };
 
@@ -249,6 +286,15 @@ export default function EventDetailPage({
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       予約確定
                     </button>
+                    <button
+                      type="button"
+                      onClick={handleMarkBookingFailed}
+                      className="px-3 py-1.5 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-1"
+                      title="この練習場所の予約が取れなかった場合、次点候補へ切り替えます"
+                    >
+                      <XCircle className="w-3.5 h-3.5" />
+                      予約不可
+                    </button>
                   </div>
                 )}
               </div>
@@ -356,6 +402,15 @@ export default function EventDetailPage({
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     予約確定
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleMarkBookingFailed}
+                    className="px-3.5 py-1.5 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-1.5"
+                    title="この練習場所の予約が取れなかった場合、次点候補へ切り替えます"
+                  >
+                    <XCircle className="w-3.5 h-3.5" />
+                    予約不可
                   </button>
                 </div>
               )}
@@ -503,6 +558,14 @@ export default function EventDetailPage({
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   予約確定 (確定済みにする)
+                </button>
+                <button
+                  type="button"
+                  onClick={handleMarkBookingFailed}
+                  className="px-4 py-2 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-1.5"
+                >
+                  <XCircle className="w-3.5 h-3.5" />
+                  予約不可 (次点候補へ繰り上げ)
                 </button>
               </>
             )}
