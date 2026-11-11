@@ -21,8 +21,8 @@ export interface Location {
 }
 
 // 日程調整イベントのステータス
-// "open": 回答受付中, "aggregated": 集計完了, "voting": 最終投票中, "confirmed": 確定済み, "completed": 練習終了, "cancelled": 中止
-export type EventStatus = "open" | "aggregated" | "voting" | "confirmed" | "completed" | "cancelled";
+// "open": 回答受付中, "aggregated": 集計完了, "voting": 最終投票中, "booking_pending": 予約待ち, "confirmed": 確定済み, "completed": 練習終了, "cancelled": 中止
+export type EventStatus = "open" | "aggregated" | "voting" | "booking_pending" | "confirmed" | "completed" | "cancelled";
 
 // 日程指定方式
 export type DateType = "candidate" | "range";

@@ -11,6 +11,8 @@ import {
   Clock,
   Edit3,
   ExternalLink,
+  Globe,
+  Hourglass,
   LayoutGrid,
   List,
   MapPin,
@@ -24,6 +26,7 @@ import {
 } from "lucide-react";
 import { EventStatus } from "@/types";
 import { ScheduleTimeline } from "@/components/ScheduleTimeline";
+import { formatWebUrl } from "@/lib/location";
 
 export default function EventDetailPage({
   params,
@@ -79,7 +82,7 @@ export default function EventDetailPage({
   const handleRunAggregation = () => {
     const result = calculateAggregation(event.id);
     if (result.autoConfirmed) {
-      alert("集計が完了しました！最大人数の候補が1件のため、自動確定しました。");
+      alert("集計が完了しました！最適候補が設定され、「予約待ち」になりました。練習場所の予約を行ってください。");
     } else if (result.candidates.length > 1) {
       alert(
         `集計が完了しました！最大人数（${result.maxAttendeeCount}名）の候補が${result.candidates.length}件あるため、最終投票を開始します。`
@@ -87,6 +90,15 @@ export default function EventDetailPage({
       router.push(`/events/${event.id}/vote`);
     } else {
       alert("参加条件を満たす候補が見つかりませんでした。回答内容をご確認ください。");
+    }
+  };
+
+  // 予約確定ハンドラ（幹事用：予約待ち -> 確定済み）
+  const handleConfirmBooking = () => {
+    if (!confirmedSlot) return;
+    if (confirm("練習場所の予約が完了しましたか？\nステータスを「確定済み」に更新し、メンバー全員に確定案内を共有します。")) {
+      updateEventStatus(event.id, "confirmed", confirmedSlot.id);
+      alert("練習日程・場所が「確定済み」になりました！メンバーに共有されました。");
     }
   };
 
@@ -106,6 +118,8 @@ export default function EventDetailPage({
         return "集計完了";
       case "voting":
         return "最終投票中";
+      case "booking_pending":
+        return "予約待ち";
       case "confirmed":
         return "確定済み";
       case "completed":
@@ -140,6 +154,12 @@ export default function EventDetailPage({
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 animate-pulse">
                   <Vote className="w-3.5 h-3.5" />
                   最終投票受付中
+                </span>
+              )}
+              {event.status === "booking_pending" && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 animate-pulse">
+                  <Hourglass className="w-3.5 h-3.5" />
+                  予約待ち
                 </span>
               )}
               {event.status === "confirmed" && (
@@ -202,6 +222,36 @@ export default function EventDetailPage({
                 <Vote className="w-4 h-4" />
                 最終投票画面へ進む
               </Link>
+            ) : event.status === "booking_pending" ? (
+              <div className="flex flex-col sm:items-end gap-1.5">
+                <span className="px-3.5 py-1.5 rounded-xl bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 font-bold text-xs inline-flex items-center gap-1.5 border border-amber-300 dark:border-amber-800">
+                  <Hourglass className="w-3.5 h-3.5" />
+                  練習場所予約待ち
+                </span>
+                {isOrganizer && confirmedSlot && (
+                  <div className="flex items-center gap-1.5 pt-1">
+                    {confirmedLocation?.reservationUrl && (
+                      <a
+                        href={formatWebUrl(confirmedLocation.reservationUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-1"
+                      >
+                        <Globe className="w-3.5 h-3.5" />
+                        予約に進む
+                      </a>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleConfirmBooking}
+                      className="px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all inline-flex items-center gap-1"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      予約確定
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="text-right">
                 <span className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-xs inline-flex items-center gap-1.5 border border-slate-200 dark:border-slate-700">
@@ -256,32 +306,89 @@ export default function EventDetailPage({
           </div>
         </div>
 
-        {/* 確定済み・練習終了の場合のハイライトカード */}
-        {(event.status === "confirmed" || event.status === "completed") && confirmedSlot && (
+        {/* 確定済み・予約待ち・練習終了の場合のハイライトカード */}
+        {(event.status === "confirmed" || event.status === "completed" || event.status === "booking_pending") && confirmedSlot && (
           <div className={`p-5 rounded-2xl border space-y-3 ${event.status === "completed"
             ? "bg-slate-50 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200"
-            : "bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200"
+            : event.status === "booking_pending"
+              ? "bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 border-amber-300 dark:border-amber-800 text-amber-950 dark:text-amber-200"
+              : "bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200"
             }`}>
-            <div className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider ${event.status === "completed" ? "text-slate-700 dark:text-slate-300" : "text-emerald-800 dark:text-emerald-300"
-              }`}>
-              <CheckCircle2 className={`w-4 h-4 ${event.status === "completed" ? "text-slate-500" : "text-emerald-600 dark:text-emerald-400"}`} />
-              {event.status === "completed" ? "練習終了 (実施記録)" : "確定した練習日程・場所"}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider ${event.status === "completed"
+                ? "text-slate-700 dark:text-slate-300"
+                : event.status === "booking_pending"
+                  ? "text-amber-800 dark:text-amber-300"
+                  : "text-emerald-800 dark:text-emerald-300"
+                }`}>
+                {event.status === "completed" ? (
+                  <CheckCircle2 className="w-4 h-4 text-slate-500" />
+                ) : event.status === "booking_pending" ? (
+                  <Hourglass className="w-4 h-4 text-amber-600 dark:text-amber-400 animate-pulse" />
+                ) : (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                )}
+                {event.status === "completed"
+                  ? "練習終了 (実施記録)"
+                  : event.status === "booking_pending"
+                    ? "予約待ちの練習候補日時・場所"
+                    : "確定した練習日程・場所"}
+              </div>
+
+              {/* 予約待ち状態で幹事の場合のアクションボタン */}
+              {event.status === "booking_pending" && isOrganizer && (
+                <div className="flex items-center gap-2">
+                  {confirmedLocation?.reservationUrl && (
+                    <a
+                      href={formatWebUrl(confirmedLocation.reservationUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors inline-flex items-center gap-1.5"
+                    >
+                      <Globe className="w-3.5 h-3.5" />
+                      予約に進む
+                    </a>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleConfirmBooking}
+                    className="px-4 py-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all inline-flex items-center gap-1.5"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    予約確定
+                  </button>
+                </div>
+              )}
             </div>
-            <div className="text-lg font-bold text-emerald-950 dark:text-emerald-100">
+
+            <div className={`text-lg font-bold ${event.status === "booking_pending" ? "text-amber-950 dark:text-amber-100" : "text-emerald-950 dark:text-emerald-100"}`}>
               {confirmedSlot.date} {confirmedSlot.startTime} 〜 {confirmedSlot.endTime}
             </div>
-            <div className="text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <div className={`text-xs flex items-center gap-1.5 ${event.status === "booking_pending" ? "text-amber-900 dark:text-amber-300" : "text-emerald-800 dark:text-emerald-300"}`}>
+              <MapPin className={`w-3.5 h-3.5 shrink-0 ${event.status === "booking_pending" ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}`} />
               場所:{" "}
               {confirmedLocation ? (
-                <Link
-                  href={`/locations?select=${confirmedLocation.id}`}
-                  className="font-bold underline hover:text-emerald-900 dark:hover:text-emerald-100 inline-flex items-center gap-1"
-                  title="クリックしてGoogle Mapで場所を確認"
-                >
-                  {confirmedLocation.name}
-                  <ExternalLink className="w-3 h-3" />
-                </Link>
+                <span className="inline-flex items-center gap-2">
+                  <Link
+                    href={`/locations?select=${confirmedLocation.id}`}
+                    className={`font-bold underline inline-flex items-center gap-1 ${event.status === "booking_pending" ? "hover:text-amber-950 dark:hover:text-amber-100" : "hover:text-emerald-900 dark:hover:text-emerald-100"}`}
+                    title="クリックしてGoogle Mapで場所を確認"
+                  >
+                    {confirmedLocation.name}
+                    <ExternalLink className="w-3 h-3" />
+                  </Link>
+                  {confirmedLocation.reservationUrl && (
+                    <a
+                      href={formatWebUrl(confirmedLocation.reservationUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-600 dark:text-emerald-400 hover:underline font-bold inline-flex items-center gap-0.5 text-[11px]"
+                    >
+                      <Globe className="w-3 h-3" />
+                      予約サイト
+                    </a>
+                  )}
+                </span>
               ) : (
                 <strong className="font-bold">未定</strong>
               )}
@@ -375,8 +482,36 @@ export default function EventDetailPage({
               </button>
             )}
 
-            {/* 集計完了・最終投票中・確定済みの幹事アクション: 回答受付中に戻す */}
-            {(event.status === "aggregated" || event.status === "voting" || event.status === "confirmed") && (
+            {/* 予約待ち状態の幹事アクション */}
+            {event.status === "booking_pending" && (
+              <>
+                {confirmedLocation?.reservationUrl && (
+                  <a
+                    href={formatWebUrl(confirmedLocation.reservationUrl)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors inline-flex items-center gap-1.5"
+                  >
+                    <Globe className="w-3.5 h-3.5" />
+                    予約サイトに進む
+                  </a>
+                )}
+                <button
+                  type="button"
+                  onClick={handleConfirmBooking}
+                  className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all inline-flex items-center gap-1.5"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  予約確定 (確定済みにする)
+                </button>
+              </>
+            )}
+
+            {/* 集計完了・最終投票中・予約待ち・確定済みの幹事アクション: 回答受付中に戻す */}
+            {(event.status === "aggregated" ||
+              event.status === "voting" ||
+              event.status === "booking_pending" ||
+              event.status === "confirmed") && (
               <button
                 onClick={() => {
                   if (confirm("ステータスを「回答受付中」に戻しますか？\n（確定や投票データがリセットされ、メンバーが再び回答できるようになります）")) {

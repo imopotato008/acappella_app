@@ -101,12 +101,12 @@ export default function EventVotePage({
   // 幹事による確定ハンドラ（期限終了後かつ同票の場合のみ！）
   const handleConfirmCandidate = (candidateId: string) => {
     if (!isDeadlinePassed) {
-      alert("投票期限が終了するまで、幹事による確定はできません。");
+      alert("投票期限が終了するまで、幹事による決定はできません。");
       return;
     }
-    if (confirm("この候補で練習日時・場所を確定しますか？")) {
-      updateEventStatus(event.id, "confirmed", candidateId);
-      alert("練習日程が確定しました！メンバーに確定内容が共有されます。");
+    if (confirm("この候補で練習日時・場所を決定（予約待ちへ遷移）しますか？")) {
+      updateEventStatus(event.id, "booking_pending", candidateId);
+      alert("候補が選択され、「予約待ち」ステータスになりました！詳細画面でスタジオ予約を行ってください。");
       router.push(`/events/${event.id}`);
     }
   };

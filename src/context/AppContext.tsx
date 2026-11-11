@@ -271,14 +271,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
                 supabase
                   .from("events")
                   .update({
-                    status: "confirmed",
+                    status: "booking_pending",
                     confirmed_candidate_id: winCandId,
                   })
                   .eq("id", ev.id)
                   .then();
                 return {
                   ...ev,
-                  status: "confirmed" as EventStatus,
+                  status: "booking_pending" as EventStatus,
                   confirmedCandidateId: winCandId,
                 };
               }
@@ -431,7 +431,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     confirmedCandidateId?: string
   ) => {
     const targetCandidateId =
-      status === "confirmed" || status === "completed"
+      status === "confirmed" || status === "booking_pending" || status === "completed"
         ? confirmedCandidateId
         : undefined;
 
@@ -690,7 +690,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       .then();
 
     if (result.autoConfirmed && result.candidates.length === 1) {
-      updateEventStatus(eventId, "confirmed", result.candidates[0].id);
+      updateEventStatus(eventId, "booking_pending", result.candidates[0].id);
     } else if (result.candidates.length > 1) {
       const defaultVotingDeadline = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
       setEvents((prev) =>

@@ -6,6 +6,7 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
+  Hourglass,
   MapPin,
   Plus,
   Sparkles,
@@ -20,7 +21,11 @@ export default function DashboardPage() {
 
   // 進行中の日程調整
   const activeEvents = events.filter(
-    (e) => e.status === "open" || e.status === "voting" || e.status === "aggregated"
+    (e) =>
+      e.status === "open" ||
+      e.status === "voting" ||
+      e.status === "aggregated" ||
+      e.status === "booking_pending"
   );
 
   // 確定した練習
@@ -133,6 +138,12 @@ export default function DashboardPage() {
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 animate-pulse">
                                 <Vote className="w-3 h-3" />
                                 最終投票受付中
+                              </span>
+                            )}
+                            {event.status === "booking_pending" && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300">
+                                <Hourglass className="w-3 h-3" />
+                                予約待ち
                               </span>
                             )}
                             {event.status === "aggregated" && (

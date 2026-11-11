@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Clock,
   Filter,
+  Hourglass,
   Plus,
   Users,
   Vote,
@@ -22,6 +23,7 @@ export default function EventsListPage() {
     if (filterStatus === "all") return true;
     if (filterStatus === "open") return ev.status === "open";
     if (filterStatus === "voting") return ev.status === "voting";
+    if (filterStatus === "booking_pending") return ev.status === "booking_pending";
     if (filterStatus === "confirmed") return ev.status === "confirmed";
     if (filterStatus === "completed") return ev.status === "completed";
     return true;
@@ -57,6 +59,7 @@ export default function EventsListPage() {
           { id: "all", label: "すべて" },
           { id: "open", label: "回答受付中" },
           { id: "voting", label: "最終投票中" },
+          { id: "booking_pending", label: "予約待ち" },
           { id: "confirmed", label: "確定済み" },
           { id: "completed", label: "練習終了" },
         ].map((tab) => (
@@ -107,6 +110,12 @@ export default function EventsListPage() {
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300">
                         <Vote className="w-3 h-3" />
                         最終投票中
+                      </span>
+                    )}
+                    {event.status === "booking_pending" && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300">
+                        <Hourglass className="w-3 h-3" />
+                        予約待ち
                       </span>
                     )}
                     {event.status === "confirmed" && (
