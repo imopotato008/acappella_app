@@ -7,6 +7,7 @@ import {
   getMapEmbedInfo,
   isEmbedMapHtml,
   getEmbedMapUrl,
+  formatWebUrl,
 } from "../location";
 import { Location, User } from "@/types";
 
@@ -233,6 +234,27 @@ describe("Location management helper functions", () => {
       expect(isEmbedMapHtml(undefined)).toBe(false);
       expect(getEmbedMapUrl("")).toBeNull();
       expect(getEmbedMapUrl(undefined)).toBeNull();
+    });
+  });
+
+  describe("formatWebUrl", () => {
+    it("空文字や未指定の場合は空文字を返す", () => {
+      expect(formatWebUrl("")).toBe("");
+      expect(formatWebUrl(undefined)).toBe("");
+      expect(formatWebUrl("   ")).toBe("");
+    });
+
+    it("https:// または http:// で始まるURLはトリムしてそのまま返す", () => {
+      expect(formatWebUrl("  https://www.studionoah.jp/shibuya/  ")).toBe(
+        "https://www.studionoah.jp/shibuya/"
+      );
+      expect(formatWebUrl("http://example.com")).toBe("http://example.com");
+    });
+
+    it("プロトコルが省略されている場合は https:// を自動付与する", () => {
+      expect(formatWebUrl("www.studionoah.jp/shibuya/")).toBe(
+        "https://www.studionoah.jp/shibuya/"
+      );
     });
   });
 });

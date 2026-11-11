@@ -15,6 +15,7 @@ export interface Location {
   address?: string;
   memo?: string;
   mapUrl?: string; // Google Mapの共有URLまたは検索リンク
+  reservationUrl?: string; // 予約サイトURL (Web予約ページなど)
   createdBy?: string; // 登録者ID
   createdAt: string;
 }

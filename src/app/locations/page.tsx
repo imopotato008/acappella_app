@@ -7,6 +7,7 @@ import {
   Building2,
   CheckCircle2,
   ExternalLink,
+  Globe,
   MapPin,
   Navigation,
   Pencil,
@@ -21,6 +22,7 @@ import {
   extractUrlFromInput,
   getEmbedMapUrl,
   isEmbedMapHtml,
+  formatWebUrl,
 } from "@/lib/location";
 import { Location } from "@/types";
 
@@ -46,6 +48,7 @@ function LocationsContent() {
   const [address, setAddress] = useState("");
   const [memo, setMemo] = useState("");
   const [mapUrl, setMapUrl] = useState("");
+  const [reservationUrl, setReservationUrl] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
   // 練習場所の編集状態
@@ -54,6 +57,7 @@ function LocationsContent() {
   const [editAddress, setEditAddress] = useState("");
   const [editMemo, setEditMemo] = useState("");
   const [editMapUrl, setEditMapUrl] = useState("");
+  const [editReservationUrl, setEditReservationUrl] = useState("");
 
   // 練習場所の削除ハンドラ（自分が投稿した場所または管理者のみ）
   const handleDeleteLocation = (locId: string, locName: string, e?: React.MouseEvent) => {
@@ -86,6 +90,7 @@ function LocationsContent() {
     setEditAddress(loc.address || "");
     setEditMemo(loc.memo || "");
     setEditMapUrl(loc.mapUrl || "");
+    setEditReservationUrl(loc.reservationUrl || "");
   };
 
   // 編集キャンセル
@@ -103,6 +108,7 @@ function LocationsContent() {
       address: editAddress,
       memo: editMemo,
       mapUrl: extractUrlFromInput(editMapUrl),
+      reservationUrl: formatWebUrl(editReservationUrl),
     });
 
     if (res.success) {
@@ -126,13 +132,15 @@ function LocationsContent() {
     if (!name.trim()) return;
 
     const cleanedUrl = extractUrlFromInput(mapUrl);
-    const newLoc = addLocation(name, address, memo, cleanedUrl);
+    const cleanedResUrl = formatWebUrl(reservationUrl);
+    const newLoc = addLocation(name, address, memo, cleanedUrl, cleanedResUrl);
     setSelectedLocId(newLoc.id);
     setSuccessMsg(`「${name}」を新しい練習場所として登録・提案しました！`);
     setName("");
     setAddress("");
     setMemo("");
     setMapUrl("");
+    setReservationUrl("");
     setIsAdding(false);
 
     setTimeout(() => {
@@ -234,6 +242,22 @@ function LocationsContent() {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                予約サイトURL (任意)
+              </label>
+              <input
+                type="text"
+                placeholder="例: https://www.studionoah.jp/shibuya/ （施設のWeb予約ページ）"
+                value={reservationUrl}
+                onChange={(e) => setReservationUrl(e.target.value)}
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500"
+              />
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">
+                ※登録しておくと、日程確定時や予約時にワンクリックでスタジオ予約ページへ進めるようになります。
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 設備・メモ (任意)
               </label>
               <textarea
@@ -313,6 +337,19 @@ function LocationsContent() {
                       {creator ? `登録者: ${creator.nickname}` : "登録施設"}
                     </span>
                     <div className="flex items-center gap-2">
+                      {loc.reservationUrl && (
+                        <a
+                          href={formatWebUrl(loc.reservationUrl)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 font-semibold inline-flex items-center gap-1"
+                          title="予約サイトを開く"
+                        >
+                          <Globe className="w-3 h-3" />
+                          予約サイト
+                        </a>
+                      )}
                       <a
                         href={getTargetMapUrl(loc)}
                         target="_blank"
@@ -423,6 +460,19 @@ function LocationsContent() {
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      予約サイトURL (任意)
+                    </label>
+                    <input
+                      type="text"
+                      value={editReservationUrl}
+                      onChange={(e) => setEditReservationUrl(e.target.value)}
+                      className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                      placeholder="例: https://www.studionoah.jp/shibuya/ （施設のWeb予約ページ）"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       利用メモ・設備情報 (任意)
                     </label>
                     <textarea
@@ -493,7 +543,34 @@ function LocationsContent() {
                   </div>
                 </div>
 
-                {/* Google Map 連携エリア */}
+                {/* Google Map & 予約サイト 連携エリア */}
+                {selectedLoc.reservationUrl && (
+                  <div className="p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300">
+                        <Globe className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-emerald-900 dark:text-emerald-200">
+                          スタジオ・施設のWeb予約
+                        </div>
+                        <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-mono truncate max-w-xs sm:max-w-md">
+                          {selectedLoc.reservationUrl}
+                        </div>
+                      </div>
+                    </div>
+                    <a
+                      href={formatWebUrl(selectedLoc.reservationUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors shadow-xs shrink-0"
+                    >
+                      <span>予約サイトを開く</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                )}
+
                 {embedMapUrl ? (
                   /* HTMLコードが登録されている場合：埋め込みMapを自動表示 ＋ Mapで開くボタン */
                   <div className="space-y-3">

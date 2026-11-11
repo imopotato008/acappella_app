@@ -48,10 +48,22 @@ interface AppContextType {
   deleteEvent: (eventId: string) => void;
 
   saveResponse: (response: Omit<EventResponse, "id" | "updatedAt">) => void;
-  addLocation: (name: string, address?: string, memo?: string, mapUrl?: string) => Location;
+  addLocation: (
+    name: string,
+    address?: string,
+    memo?: string,
+    mapUrl?: string,
+    reservationUrl?: string
+  ) => Location;
   updateLocation: (
     locationId: string,
-    data: { name: string; address?: string; memo?: string; mapUrl?: string }
+    data: {
+      name: string;
+      address?: string;
+      memo?: string;
+      mapUrl?: string;
+      reservationUrl?: string;
+    }
   ) => { success: boolean; message?: string };
   deleteLocation: (locationId: string) => { success: boolean; message?: string };
 
@@ -144,6 +156,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               address: l.address || undefined,
               memo: l.memo || undefined,
               mapUrl: l.map_url || undefined,
+              reservationUrl: l.reservation_url || undefined,
               createdBy: l.created_by || undefined,
               createdAt: l.created_at,
             }))
@@ -516,7 +529,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     name: string,
     address?: string,
     memo?: string,
-    mapUrl?: string
+    mapUrl?: string,
+    reservationUrl?: string
   ): Location => {
     const newLoc: Location = {
       id: `loc-${Date.now()}`,
@@ -528,24 +542,36 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         (address
           ? `https://maps.google.com/?q=${encodeURIComponent(name + " " + address)}`
           : undefined),
+      reservationUrl: reservationUrl?.trim() || undefined,
       createdBy: currentUser ? currentUser.id : undefined,
       createdAt: new Date().toISOString(),
     };
     setLocations((prev) => [...prev, newLoc]);
 
     // Supabase に保存
+    const insertPayload: Record<string, any> = {
+      id: newLoc.id,
+      name: newLoc.name,
+      address: newLoc.address || "",
+      memo: newLoc.memo || "",
+      map_url: newLoc.mapUrl || "",
+      created_by: newLoc.createdBy || null,
+      created_at: newLoc.createdAt,
+    };
+    if (newLoc.reservationUrl) {
+      insertPayload.reservation_url = newLoc.reservationUrl;
+    }
+
     supabase
       .from("locations")
-      .insert({
-        id: newLoc.id,
-        name: newLoc.name,
-        address: newLoc.address || "",
-        memo: newLoc.memo || "",
-        map_url: newLoc.mapUrl || "",
-        created_by: newLoc.createdBy || null,
-        created_at: newLoc.createdAt,
-      })
-      .then();
+      .insert(insertPayload)
+      .then((res) => {
+        // もしカラムが存在しない等のエラーが出た場合は reservation_url なしで再試行
+        if (res.error && res.error.message?.includes("reservation_url")) {
+          delete insertPayload.reservation_url;
+          supabase.from("locations").insert(insertPayload).then();
+        }
+      });
 
     return newLoc;
   };
@@ -558,6 +584,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       address?: string;
       memo?: string;
       mapUrl?: string;
+      reservationUrl?: string;
     }
   ): { success: boolean; message?: string } => {
     if (!currentUser) {
@@ -586,6 +613,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               data.name.trim() + " " + data.address.trim()
             )}`
           : target.mapUrl),
+      reservationUrl: data.reservationUrl !== undefined ? (data.reservationUrl.trim() || undefined) : target.reservationUrl,
     };
 
     setLocations((prev) =>
@@ -593,16 +621,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     );
 
     // Supabase に更新保存
+    const updatePayload: Record<string, any> = {
+      name: updatedLoc.name,
+      address: updatedLoc.address || "",
+      memo: updatedLoc.memo || "",
+      map_url: updatedLoc.mapUrl || "",
+    };
+    if (updatedLoc.reservationUrl !== undefined) {
+      updatePayload.reservation_url = updatedLoc.reservationUrl || null;
+    }
+
     supabase
       .from("locations")
-      .update({
-        name: updatedLoc.name,
-        address: updatedLoc.address || "",
-        memo: updatedLoc.memo || "",
-        map_url: updatedLoc.mapUrl || "",
-      })
+      .update(updatePayload)
       .eq("id", locationId)
-      .then();
+      .then((res) => {
+        if (res.error && res.error.message?.includes("reservation_url")) {
+          delete updatePayload.reservation_url;
+          supabase.from("locations").update(updatePayload).eq("id", locationId).then();
+        }
+      });
 
     return { success: true };
   };

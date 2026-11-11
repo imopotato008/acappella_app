@@ -5,6 +5,7 @@ export interface LocationInput {
   address?: string;
   memo?: string;
   mapUrl?: string;
+  reservationUrl?: string;
 }
 
 /**
@@ -15,6 +16,19 @@ export function validateLocation(input: LocationInput): { valid: boolean; error?
     return { valid: false, error: "練習場所名を入力してください。" };
   }
   return { valid: true };
+}
+
+/**
+ * WebサイトURLの整形（前後の空白を除去し、プロトコルがなければhttps://を付与）
+ */
+export function formatWebUrl(url?: string): string {
+  if (!url) return "";
+  const trimmed = url.trim();
+  if (!trimmed) return "";
+  if (!/^https?:\/\//i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  return trimmed;
 }
 
 /**
