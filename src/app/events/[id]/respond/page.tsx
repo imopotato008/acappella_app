@@ -10,6 +10,7 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
+  Copy,
   ExternalLink,
   MapPin,
   Pencil,
@@ -17,12 +18,13 @@ import {
   Trash2,
   XCircle,
 } from "lucide-react";
-import { ResponseTimeSlot, SlotLocationChoice } from "@/types";
+import { Event, ResponseTimeSlot, SlotLocationChoice } from "@/types";
 import {
   validateTimeSlot,
   updateTimeSlot,
   addTimeSlot,
   removeTimeSlot,
+  duplicateTimeSlotToDates,
 } from "@/lib/response";
 
 // 30分刻みの時刻選択肢（08:00 〜 23:00）
@@ -31,6 +33,25 @@ for (let h = 8; h <= 23; h++) {
   const hh = String(h).padStart(2, "0");
   TIME_OPTIONS.push(`${hh}:00`);
   if (h < 23) TIME_OPTIONS.push(`${hh}:30`);
+}
+
+// 候補日・期間から選択可能な日付一覧を取得
+function getAvailableDates(ev: Event): string[] {
+  if (ev.dateType === "candidate" && ev.candidateDates && ev.candidateDates.length > 0) {
+    return ev.candidateDates;
+  }
+  if (ev.startDate && ev.endDate) {
+    const dates: string[] = [];
+    const current = new Date(ev.startDate);
+    const end = new Date(ev.endDate);
+    while (current <= end) {
+      dates.push(current.toISOString().split("T")[0]);
+      current.setDate(current.getDate() + 1);
+    }
+    return dates;
+  }
+  if (ev.startDate) return [ev.startDate];
+  return [];
 }
 
 export default function EventRespondPage({
@@ -62,6 +83,8 @@ export default function EventRespondPage({
   const [selectedLocations, setSelectedLocations] = useState<SlotLocationChoice[]>(
     []
   );
+  // 新規追加時の複数候補日コピー対象
+  const [copyTargetDates, setCopyTargetDates] = useState<string[]>([]);
 
   // 新規練習場所提案の入力状態
   const [isSuggestingLocation, setIsSuggestingLocation] = useState(false);
@@ -75,6 +98,8 @@ export default function EventRespondPage({
   const [editStartTime, setEditStartTime] = useState<string>("13:00");
   const [editEndTime, setEditEndTime] = useState<string>("17:00");
   const [editLocations, setEditLocations] = useState<SlotLocationChoice[]>([]);
+  // 編集時の複数候補日コピー対象
+  const [editCopyTargetDates, setEditCopyTargetDates] = useState<string[]>([]);
   const [isSuggestingInEdit, setIsSuggestingInEdit] = useState<boolean>(false);
   const [editSuggestName, setEditSuggestName] = useState<string>("");
   const [editSuggestAddress, setEditSuggestAddress] = useState<string>("");
@@ -131,6 +156,11 @@ export default function EventRespondPage({
     );
   }
 
+  // 選択可能な全日付と、現在選択外のコピー対象日
+  const availableDates = getAvailableDates(event);
+  const otherCandidateDates = availableDates.filter((d) => d !== selectedDate);
+  const editOtherCandidateDates = availableDates.filter((d) => d !== editDate);
+
   // 練習場所のチェック切り替え（順位付けは廃止し、利用可能場所として選択）
   const handleToggleLocation = (locId: string) => {
     const exists = selectedLocations.find((l) => l.locationId === locId);
@@ -155,16 +185,35 @@ export default function EventRespondPage({
       return;
     }
 
-    const newSlot: ResponseTimeSlot = {
-      id: `slot-${Date.now()}`,
-      date: selectedDate,
+    const baseData = {
       startTime,
       endTime,
       locations: [...selectedLocations],
     };
 
-    setTimeSlots(addTimeSlot(timeSlots, newSlot));
+    const newSlot: ResponseTimeSlot = {
+      id: `slot-${Date.now()}`,
+      date: selectedDate,
+      ...baseData,
+    };
+
+    let updatedSlots = addTimeSlot(timeSlots, newSlot);
+
+    // 複数候補日へのコピー指定がある場合
+    if (copyTargetDates.length > 0) {
+      const duplicated = duplicateTimeSlotToDates(
+        baseData,
+        copyTargetDates,
+        `slot-${Date.now()}`
+      );
+      for (const slot of duplicated) {
+        updatedSlots = addTimeSlot(updatedSlots, slot);
+      }
+    }
+
+    setTimeSlots(updatedSlots);
     setSelectedLocations([]);
+    setCopyTargetDates([]);
   };
 
   // 時間帯の削除
@@ -172,6 +221,7 @@ export default function EventRespondPage({
     setTimeSlots(removeTimeSlot(timeSlots, slotId));
     if (editingSlotId === slotId) {
       setEditingSlotId(null);
+      setEditCopyTargetDates([]);
       setIsSuggestingInEdit(false);
     }
   };
@@ -183,12 +233,14 @@ export default function EventRespondPage({
     setEditStartTime(slot.startTime);
     setEditEndTime(slot.endTime);
     setEditLocations([...slot.locations]);
+    setEditCopyTargetDates([]);
     setIsSuggestingInEdit(false);
   };
 
   // 時間帯の編集キャンセル
   const handleCancelEditSlot = () => {
     setEditingSlotId(null);
+    setEditCopyTargetDates([]);
     setIsSuggestingInEdit(false);
   };
 
@@ -234,15 +286,32 @@ export default function EventRespondPage({
       return;
     }
 
-    setTimeSlots(
-      updateTimeSlot(timeSlots, slotId, {
-        date: editDate,
-        startTime: editStartTime,
-        endTime: editEndTime,
-        locations: editLocations,
-      })
-    );
+    const baseData = {
+      startTime: editStartTime,
+      endTime: editEndTime,
+      locations: editLocations,
+    };
+
+    let updatedSlots = updateTimeSlot(timeSlots, slotId, {
+      date: editDate,
+      ...baseData,
+    });
+
+    // 編集時にも他候補日へのコピー指定があれば追加
+    if (editCopyTargetDates.length > 0) {
+      const duplicated = duplicateTimeSlotToDates(
+        baseData,
+        editCopyTargetDates,
+        `slot-${Date.now()}`
+      );
+      for (const slot of duplicated) {
+        updatedSlots = addTimeSlot(updatedSlots, slot);
+      }
+    }
+
+    setTimeSlots(updatedSlots);
     setEditingSlotId(null);
+    setEditCopyTargetDates([]);
     setIsSuggestingInEdit(false);
   };
 
@@ -550,6 +619,69 @@ export default function EventRespondPage({
                 </div>
               </div>
 
+              {/* 他の候補日への一括コピーオプション */}
+              {otherCandidateDates.length > 0 && (
+                <div className="pt-3 border-t border-slate-200/80 dark:border-slate-700/80 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                      <Copy className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                      他の候補日にも同じ設定（時間・場所）で一括追加
+                    </label>
+                    <div className="flex items-center gap-2 text-[10px]">
+                      <button
+                        type="button"
+                        onClick={() => setCopyTargetDates([...otherCandidateDates])}
+                        className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+                      >
+                        全選択
+                      </button>
+                      <span className="text-slate-300 dark:text-slate-600">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setCopyTargetDates([])}
+                        className="text-slate-500 dark:text-slate-400 hover:underline"
+                      >
+                        全解除
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {otherCandidateDates.map((date) => {
+                      const isChecked = copyTargetDates.includes(date);
+                      return (
+                        <label
+                          key={date}
+                          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs cursor-pointer transition-colors ${
+                            isChecked
+                              ? "bg-indigo-50/80 dark:bg-indigo-950/60 border-indigo-400 dark:border-indigo-700 text-indigo-900 dark:text-indigo-200 font-semibold shadow-2xs"
+                              : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setCopyTargetDates([...copyTargetDates, date]);
+                              } else {
+                                setCopyTargetDates(copyTargetDates.filter((d) => d !== date));
+                              }
+                            }}
+                            className="rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500"
+                          />
+                          <span>{date}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  {copyTargetDates.length > 0 && (
+                    <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">
+                      ✓ 「{selectedDate}」に加えて、選択した {copyTargetDates.length} 日分にも同時にスロットを追加します
+                    </p>
+                  )}
+                </div>
+              )}
+
               <div className="flex justify-end pt-2">
                 <button
                   type="button"
@@ -557,7 +689,9 @@ export default function EventRespondPage({
                   className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors inline-flex items-center gap-1.5"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  この時間帯をリストに追加
+                  {copyTargetDates.length > 0
+                    ? `この設定で一括追加 (${1 + copyTargetDates.length}日分)`
+                    : "この時間帯をリストに追加"}
                 </button>
               </div>
             </div>
@@ -752,6 +886,76 @@ export default function EventRespondPage({
                             </div>
                           </div>
 
+                          {/* 編集内容を他候補日へもコピーして追加するオプション */}
+                          {editOtherCandidateDates.length > 0 && (
+                            <div className="pt-2.5 border-t border-indigo-100/80 dark:border-indigo-900/60 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                  <Copy className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                                  他の候補日にもこの設定をコピーして追加
+                                </label>
+                                <div className="flex items-center gap-2 text-[10px]">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setEditCopyTargetDates([...editOtherCandidateDates])
+                                    }
+                                    className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+                                  >
+                                    全選択
+                                  </button>
+                                  <span className="text-slate-300 dark:text-slate-600">|</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditCopyTargetDates([])}
+                                    className="text-slate-500 dark:text-slate-400 hover:underline"
+                                  >
+                                    全解除
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {editOtherCandidateDates.map((date) => {
+                                  const isChecked = editCopyTargetDates.includes(date);
+                                  return (
+                                    <label
+                                      key={date}
+                                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs cursor-pointer transition-colors ${
+                                        isChecked
+                                          ? "bg-indigo-50/80 dark:bg-indigo-950/60 border-indigo-400 dark:border-indigo-700 text-indigo-900 dark:text-indigo-200 font-semibold shadow-2xs"
+                                          : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                      }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          if (e.target.checked) {
+                                            setEditCopyTargetDates([
+                                              ...editCopyTargetDates,
+                                              date,
+                                            ]);
+                                          } else {
+                                            setEditCopyTargetDates(
+                                              editCopyTargetDates.filter((d) => d !== date)
+                                            );
+                                          }
+                                        }}
+                                        className="rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500"
+                                      />
+                                      <span>{date}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {editCopyTargetDates.length > 0 && (
+                                <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">
+                                  ✓ このスロットの変更を保存し、選択した {editCopyTargetDates.length} 日分にも同じ時間・場所のスロットを新規追加します
+                                </p>
+                              )}
+                            </div>
+                          )}
+
                           {/* ボタン */}
                           <div className="flex items-center justify-end gap-2 pt-2 border-t border-indigo-100 dark:border-indigo-900/60">
                             <button
@@ -767,7 +971,9 @@ export default function EventRespondPage({
                               className="px-3.5 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-colors inline-flex items-center gap-1.5"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
-                              変更を保存
+                              {editCopyTargetDates.length > 0
+                                ? `変更を保存 & ${editCopyTargetDates.length}日分コピー追加`
+                                : "変更を保存"}
                             </button>
                           </div>
                         </div>

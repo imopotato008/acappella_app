@@ -1036,6 +1036,12 @@
       background-color: color-mix(in oklab, var(--color-indigo-50) 70%, transparent);
     }
   }
+  .bg-indigo-50\/80 {
+    background-color: color-mix(in srgb, oklch(96.2% 0.018 272.314) 80%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-indigo-50) 80%, transparent);
+    }
+  }
   .bg-indigo-100 {
     background-color: var(--color-indigo-100);
   }
@@ -1379,6 +1385,9 @@
   }
   .pt-2 {
     padding-top: calc(var(--spacing) * 2);
+  }
+  .pt-2\.5 {
+    padding-top: calc(var(--spacing) * 2.5);
   }
   .pt-3 {
     padding-top: calc(var(--spacing) * 3);

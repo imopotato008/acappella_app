@@ -4,6 +4,7 @@ import {
   updateTimeSlot,
   addTimeSlot,
   removeTimeSlot,
+  duplicateTimeSlotToDates,
 } from "../response";
 import { ResponseTimeSlot } from "@/types";
 
@@ -153,6 +154,44 @@ describe("Response time slot operations", () => {
       const result = removeTimeSlot(slots, "slot-1");
       expect(result.length).toBe(1);
       expect(result[0].id).toBe("slot-2");
+    });
+  });
+
+  describe("duplicateTimeSlotToDates", () => {
+    it("指定した複数の日付に同じ時間・場所設定のスロットを生成する", () => {
+      const base = {
+        startTime: "13:00",
+        endTime: "17:00",
+        locations: [{ locationId: "loc-1" }, { locationId: "loc-2" }],
+      };
+      const dates = ["2026-11-21", "2026-11-22", "2026-11-23"];
+
+      const duplicated = duplicateTimeSlotToDates(base, dates, "test-slot");
+
+      expect(duplicated).toHaveLength(3);
+      expect(duplicated[0].date).toBe("2026-11-21");
+      expect(duplicated[0].startTime).toBe("13:00");
+      expect(duplicated[0].endTime).toBe("17:00");
+      expect(duplicated[0].locations).toEqual([
+        { locationId: "loc-1" },
+        { locationId: "loc-2" },
+      ]);
+      expect(duplicated[1].date).toBe("2026-11-22");
+      expect(duplicated[2].date).toBe("2026-11-23");
+
+      // IDが一意であること
+      const ids = new Set(duplicated.map((s) => s.id));
+      expect(ids.size).toBe(3);
+    });
+
+    it("空の対象日付リストを渡した場合は空配列を返す", () => {
+      const base = {
+        startTime: "13:00",
+        endTime: "17:00",
+        locations: [{ locationId: "loc-1" }],
+      };
+      const duplicated = duplicateTimeSlotToDates(base, []);
+      expect(duplicated).toEqual([]);
     });
   });
 });

@@ -59,3 +59,25 @@ export function removeTimeSlot(
   return slots.filter((s) => s.id !== slotId);
 }
 
+/**
+ * ひとつの時間・場所設定を、複数の別の候補日に一括コピーしてスロットを生成
+ */
+export function duplicateTimeSlotToDates(
+  baseSlot: {
+    startTime: string;
+    endTime: string;
+    locations: SlotLocationChoice[];
+  },
+  targetDates: string[],
+  idPrefix: string = `slot-${Date.now()}`
+): ResponseTimeSlot[] {
+  return targetDates.map((date, index) => ({
+    id: `${idPrefix}-copy-${index}-${Math.random().toString(36).slice(2, 7)}`,
+    date,
+    startTime: baseSlot.startTime,
+    endTime: baseSlot.endTime,
+    locations: baseSlot.locations.map((loc) => ({ ...loc })),
+  }));
+}
+
+

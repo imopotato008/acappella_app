@@ -82,3 +82,4 @@ describe("Booking Pending Status & Flow", () => {
     expect(sampleLocationWithoutUrl.reservationUrl).toBeUndefined();
   });
 });
+
