@@ -11,7 +11,6 @@ import {
   Plus,
   Sparkles,
   Users,
-  Vote,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -23,7 +22,6 @@ export default function DashboardPage() {
   const activeEvents = events.filter(
     (e) =>
       e.status === "open" ||
-      e.status === "voting" ||
       e.status === "aggregated" ||
       e.status === "booking_pending"
   );
@@ -134,12 +132,6 @@ export default function DashboardPage() {
                                 回答受付中
                               </span>
                             )}
-                            {event.status === "voting" && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 animate-pulse">
-                                <Vote className="w-3 h-3" />
-                                最終投票受付中
-                              </span>
-                            )}
                             {event.status === "booking_pending" && (
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300">
                                 <Hourglass className="w-3 h-3" />
@@ -183,9 +175,9 @@ export default function DashboardPage() {
 
                           <Link
                             href={
-                              event.status === "voting"
-                                ? `/events/${event.id}/vote`
-                                : `/events/${event.id}/respond`
+                              event.status === "open"
+                                ? `/events/${event.id}/respond`
+                                : `/events/${event.id}`
                             }
                             className={`px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition-colors whitespace-nowrap ${
                               myResponse
@@ -193,11 +185,11 @@ export default function DashboardPage() {
                                 : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-200"
                             }`}
                           >
-                            {event.status === "voting"
-                              ? "投票へ進む"
-                              : myResponse
-                              ? "回答を変更"
-                              : "回答する"}
+                            {event.status === "open"
+                              ? myResponse
+                                ? "回答を変更"
+                                : "回答する"
+                              : "詳細を確認"}
                           </Link>
                         </div>
                       </div>

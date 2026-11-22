@@ -7,14 +7,12 @@ import {
   Event,
   EventResponse,
   EventStatus,
-  FinalVote,
   Location,
   User,
 } from "@/types";
 import { aggregateResponses } from "@/lib/aggregation";
 import { authenticateUser, validateAndCreateUser, resetUserPasswordHelper, DEFAULT_INITIAL_PASSWORD } from "@/lib/auth";
 import { canManageLocation, validateLocation } from "@/lib/location";
-import { toggleVote } from "@/lib/voting";
 import { supabase } from "@/lib/supabase";
 import { triggerDiscordNotification } from "@/lib/notifyClient";
 import { evaluateEventReminders } from "@/lib/reminders";
@@ -25,7 +23,6 @@ interface AppContextType {
   events: Event[];
   locations: Location[];
   responses: EventResponse[];
-  finalVotes: FinalVote[];
   candidateSlots: Record<string, CandidateSlot[]>;
 
   login: (id: string, password: string) => { success: boolean; message?: string };
@@ -44,9 +41,9 @@ interface AppContextType {
   updateEventStatus: (
     eventId: string,
     status: EventStatus,
-    confirmedCandidateId?: string
+    confirmedCandidateIds?: string[] | string
   ) => void;
-  updateVotingDeadline: (eventId: string, newDeadline: string) => void;
+  updateEventDeadline: (eventId: string, newDeadline: string) => void;
   deleteEvent: (eventId: string) => void;
 
   saveResponse: (response: Omit<EventResponse, "id" | "updatedAt">) => void;
@@ -74,7 +71,6 @@ interface AppContextType {
     candidates: CandidateSlot[];
     autoConfirmed: boolean;
   };
-  castVote: (eventId: string, candidateId: string) => void;
 
   resetToInitialData: () => void;
 }
@@ -83,6 +79,31 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const SESSION_USER_ID_KEY = "acappella_session_user_id";
 const LOCATION_RESERVATIONS_KEY = "acappella_location_reservations";
+const CONFIRMED_SLOTS_KEY = "acappella_confirmed_slots_map";
+
+// 複数確定日程キャッシュヘルパー
+function getLocalConfirmedSlotsMap(): Record<string, string[]> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(CONFIRMED_SLOTS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveLocalConfirmedSlots(eventId: string, slotIds: string[]) {
+  if (typeof window === "undefined") return;
+  try {
+    const map = getLocalConfirmedSlotsMap();
+    if (slotIds.length > 0) {
+      map[eventId] = slotIds;
+    } else {
+      delete map[eventId];
+    }
+    localStorage.setItem(CONFIRMED_SLOTS_KEY, JSON.stringify(map));
+  } catch {}
+}
 
 // Supabaseテーブルに reservation_url カラムがない場合でも即時永続化するためのローカルキャッシュヘルパー
 function getLocalReservationMap(): Record<string, string> {
@@ -124,7 +145,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [responses, setResponses] = useState<EventResponse[]>([]);
-  const [finalVotes, setFinalVotes] = useState<FinalVote[]>([]);
   const [candidateSlots, setCandidateSlots] = useState<Record<string, CandidateSlot[]>>({});
 
   // Supabase からの初期データ読み込み
@@ -138,14 +158,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           eventsRes,
           locsRes,
           respsRes,
-          votesRes,
           candsRes,
         ] = await Promise.all([
           supabase.from("users").select("*"),
           supabase.from("events").select("*").order("created_at", { ascending: false }),
           supabase.from("locations").select("*").order("created_at", { ascending: true }),
           supabase.from("event_responses").select("*"),
-          supabase.from("final_votes").select("*"),
           supabase.from("candidate_slots").select("*"),
         ]);
 
@@ -164,23 +182,29 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (eventsRes.data && !eventsRes.error) {
+          const localConfirmedMap = getLocalConfirmedSlotsMap();
           setEvents(
-            eventsRes.data.map((ev: any) => ({
-              id: ev.id,
-              title: ev.title,
-              description: ev.description || "",
-              organizerId: ev.organizer_id,
-              dateType: (ev.date_type as DateType) || "candidate",
-              candidateDates: ev.candidate_dates || undefined,
-              startDate: ev.start_date || undefined,
-              endDate: ev.end_date || undefined,
-              durationMinutes: Number(ev.duration_minutes) || 120,
-              deadline: ev.deadline,
-              votingDeadline: ev.voting_deadline || undefined,
-              status: (ev.status as EventStatus) || "open",
-              confirmedCandidateId: ev.confirmed_candidate_id || undefined,
-              createdAt: ev.created_at,
-            }))
+            eventsRes.data.map((ev: any) => {
+              const localIds = localConfirmedMap[ev.id];
+              const primaryId = ev.confirmed_candidate_id || undefined;
+              const ids = localIds && localIds.length > 0 ? localIds : (primaryId ? [primaryId] : undefined);
+              return {
+                id: ev.id,
+                title: ev.title,
+                description: ev.description || "",
+                organizerId: ev.organizer_id,
+                dateType: (ev.date_type as DateType) || "candidate",
+                candidateDates: ev.candidate_dates || undefined,
+                startDate: ev.start_date || undefined,
+                endDate: ev.end_date || undefined,
+                durationMinutes: Number(ev.duration_minutes) || 120,
+                deadline: ev.deadline,
+                status: (ev.status as EventStatus) || "open",
+                confirmedCandidateId: primaryId,
+                confirmedCandidateIds: ids,
+                createdAt: ev.created_at,
+              };
+            })
           );
         }
 
@@ -210,18 +234,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               memo: r.memo || undefined,
               timeSlots: r.time_slots || [],
               updatedAt: r.updated_at,
-            }))
-          );
-        }
-
-        if (votesRes.data && !votesRes.error) {
-          setFinalVotes(
-            votesRes.data.map((v: any) => ({
-              id: v.id,
-              eventId: v.event_id,
-              candidateId: v.candidate_id,
-              userId: v.user_id,
-              createdAt: v.created_at,
             }))
           );
         }
@@ -287,47 +299,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
-        // 2. 投票期限切れの自動確定判定
-        if (ev.status === "voting" && ev.votingDeadline) {
-          const deadlineDate = new Date(ev.votingDeadline);
-          if (now >= deadlineDate) {
-            const cands = candidateSlots[ev.id] || [];
-            if (cands.length > 0) {
-              const eventVotes = finalVotes.filter((v) => v.eventId === ev.id);
-              const scoredCands = cands.map((c) => ({
-                ...c,
-                votes: eventVotes.filter((v) => v.candidateId === c.id).length,
-              }));
-
-              const maxVotes = Math.max(0, ...scoredCands.map((c) => c.votes));
-              const topCands = scoredCands.filter((c) => c.votes === maxVotes);
-
-              if (topCands.length === 1) {
-                hasChanged = true;
-                const winCandId = topCands[0].id;
-                supabase
-                  .from("events")
-                  .update({
-                    status: "booking_pending",
-                    confirmed_candidate_id: winCandId,
-                  })
-                  .eq("id", ev.id)
-                  .then();
-                return {
-                  ...ev,
-                  status: "booking_pending" as EventStatus,
-                  confirmedCandidateId: winCandId,
-                };
-              }
-            }
-          }
-        }
-
         return ev;
       });
       return hasChanged ? updated : prev;
     });
-  }, [isLoaded, candidateSlots, finalVotes]);
+  }, [isLoaded, candidateSlots]);
 
   // 回答期限・投票期限の自動リマインダー通知 (残り3日、残り1日)
   useEffect(() => {
@@ -345,7 +321,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             eventId: item.eventId,
             eventTitle: item.eventTitle,
             deadline: item.deadline,
-            votingDeadline: item.votingDeadline,
           });
           sentKeys.add(item.reminderKey);
         });
@@ -498,27 +473,46 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return newEvent;
   };
 
-  // イベントステータス更新
+  // イベントステータス更新（複数候補ID対応）
   const updateEventStatus = (
     eventId: string,
     status: EventStatus,
-    confirmedCandidateId?: string
+    confirmedCandidateIds?: string[] | string
   ) => {
-    const targetCandidateId =
-      status === "confirmed" || status === "booking_pending" || status === "completed"
-        ? confirmedCandidateId
-        : undefined;
+    let ids: string[] = [];
+    if (Array.isArray(confirmedCandidateIds)) {
+      ids = confirmedCandidateIds;
+    } else if (confirmedCandidateIds) {
+      ids = [confirmedCandidateIds];
+    }
+    const primaryId = ids[0] || undefined;
 
     setEvents((prev) =>
-      prev.map((ev) =>
-        ev.id === eventId
-          ? {
-              ...ev,
-              status,
-              confirmedCandidateId: targetCandidateId || ev.confirmedCandidateId,
-            }
-          : ev
-      )
+      prev.map((ev) => {
+        if (ev.id !== eventId) return ev;
+        if (status === "open") {
+          saveLocalConfirmedSlots(eventId, []);
+          return {
+            ...ev,
+            status,
+            confirmedCandidateId: undefined,
+            confirmedCandidateIds: undefined,
+          };
+        }
+        const finalIds =
+          ids.length > 0
+            ? ids
+            : ev.confirmedCandidateIds || (ev.confirmedCandidateId ? [ev.confirmedCandidateId] : []);
+        if (status === "confirmed" || status === "booking_pending" || status === "completed") {
+          saveLocalConfirmedSlots(eventId, finalIds);
+        }
+        return {
+          ...ev,
+          status,
+          confirmedCandidateId: primaryId || ev.confirmedCandidateId,
+          confirmedCandidateIds: finalIds,
+        };
+      })
     );
 
     // Supabase に非同期保存
@@ -526,7 +520,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       .from("events")
       .update({
         status,
-        confirmed_candidate_id: targetCandidateId || null,
+        confirmed_candidate_id: primaryId || (status === "open" ? null : null),
       })
       .eq("id", eventId)
       .then();
@@ -535,34 +529,50 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (status === "confirmed") {
       const targetEvent = events.find((e) => e.id === eventId);
       const cands = candidateSlots[eventId] || [];
-      const slot = cands.find((c) => c.id === (targetCandidateId || targetEvent?.confirmedCandidateId));
-      if (targetEvent && slot) {
-        const loc = locations.find((l) => l.id === slot.locationId);
+      const matchedSlots = cands.filter((c) =>
+        ids.length > 0
+          ? ids.includes(c.id)
+          : targetEvent?.confirmedCandidateIds?.includes(c.id) || c.id === targetEvent?.confirmedCandidateId
+      );
+
+      let summaryText = "";
+      if (matchedSlots.length > 1) {
+        summaryText = matchedSlots
+          .map((s, idx) => {
+            const loc = locations.find((l) => l.id === s.locationId);
+            return `・第${idx + 1}練習日: ${s.date} ${s.startTime}〜${s.endTime} (${loc?.name || "未定"}) [${s.attendeeCount}名可]`;
+          })
+          .join("\n");
+      }
+
+      const firstSlot = matchedSlots[0];
+      const firstLoc = firstSlot ? locations.find((l) => l.id === firstSlot.locationId) : null;
+
+      if (targetEvent) {
         triggerDiscordNotification({
           type: "event_confirmed",
           eventId,
           eventTitle: targetEvent.title,
-          confirmedDate: slot.date,
-          confirmedTime: `${slot.startTime} 〜 ${slot.endTime}`,
-          confirmedLocationName: loc?.name || "未定",
-          confirmedAttendeesCount: slot.attendeeCount,
+          confirmedSlotsSummary: summaryText || undefined,
+          confirmedDate: firstSlot?.date,
+          confirmedTime: firstSlot ? `${firstSlot.startTime} 〜 ${firstSlot.endTime}` : undefined,
+          confirmedLocationName: firstLoc?.name || "未定",
+          confirmedAttendeesCount: firstSlot?.attendeeCount,
         });
       }
     }
   };
 
-  // 最終投票期限の更新
-  const updateVotingDeadline = (eventId: string, newDeadline: string) => {
+  // 回答期限の更新
+  const updateEventDeadline = (eventId: string, newDeadline: string) => {
     setEvents((prev) =>
-      prev.map((ev) =>
-        ev.id === eventId ? { ...ev, votingDeadline: newDeadline } : ev
-      )
+      prev.map((ev) => (ev.id === eventId ? { ...ev, deadline: newDeadline } : ev))
     );
 
     // Supabase に非同期保存
     supabase
       .from("events")
-      .update({ voting_deadline: newDeadline })
+      .update({ deadline: newDeadline })
       .eq("id", eventId)
       .then();
   };
@@ -764,7 +774,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return { success: true };
   };
 
-  // 集計の実行
+  // 集計の実行（候補スロットを算出して保存し、集計完了状態にする）
   const calculateAggregation = (eventId: string) => {
     const targetEvent = events.find((e) => e.id === eventId);
     if (!targetEvent) return { maxAttendeeCount: 0, candidates: [], autoConfirmed: false };
@@ -787,82 +797,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       })
       .then();
 
-    if (result.autoConfirmed && result.candidates.length === 1) {
-      updateEventStatus(eventId, "booking_pending", result.candidates[0].id);
-    } else if (result.candidates.length > 1) {
-      const defaultVotingDeadline = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
-      setEvents((prev) =>
-        prev.map((ev) =>
-          ev.id === eventId
-            ? { ...ev, status: "voting", votingDeadline: defaultVotingDeadline }
-            : ev
-        )
-      );
-      supabase
-        .from("events")
-        .update({
-          status: "voting",
-          voting_deadline: defaultVotingDeadline,
-        })
-        .eq("id", eventId)
-        .then();
-
-      // 最終投票開始のDiscord通知
-      const candSummary = result.candidates
-        .map((c, idx) => {
-          const loc = locations.find((l) => l.id === c.locationId);
-          return `・候補${idx + 1}: ${c.date} ${c.startTime}〜${c.endTime} (${loc?.name || "未定"}) [${c.attendeeCount}名可]`;
-        })
-        .join("\n");
-
-      triggerDiscordNotification({
-        type: "voting_started",
-        eventId,
-        eventTitle: targetEvent.title,
-        votingDeadline: defaultVotingDeadline,
-        candidateSummary: candSummary,
-      });
-    } else {
-      updateEventStatus(eventId, "aggregated");
-    }
+    // ステータスを集計完了にする
+    updateEventStatus(eventId, "aggregated");
 
     return result;
-  };
-
-  // 最終投票
-  const castVote = (eventId: string, candidateId: string) => {
-    if (!currentUser) return;
-
-    const isAlreadyVoted = finalVotes.some(
-      (v) =>
-        v.eventId === eventId &&
-        v.userId === currentUser.id &&
-        v.candidateId === candidateId
-    );
-
-    setFinalVotes((prev) => toggleVote(prev, eventId, candidateId, currentUser.id));
-
-    if (isAlreadyVoted) {
-      supabase
-        .from("final_votes")
-        .delete()
-        .match({ event_id: eventId, user_id: currentUser.id })
-        .then();
-    } else {
-      supabase
-        .from("final_votes")
-        .upsert(
-          {
-            id: `vote-${Date.now()}`,
-            event_id: eventId,
-            candidate_id: candidateId,
-            user_id: currentUser.id,
-            created_at: new Date().toISOString(),
-          },
-          { onConflict: "event_id,user_id" }
-        )
-        .then();
-    }
   };
 
   // （互換性のためインターフェースを維持）
@@ -878,7 +816,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         events,
         locations,
         responses,
-        finalVotes,
         candidateSlots,
         login,
         logout,
@@ -887,14 +824,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         resetUserPassword,
         createEvent,
         updateEventStatus,
-        updateVotingDeadline,
+        updateEventDeadline,
         deleteEvent,
         saveResponse,
         addLocation,
         updateLocation,
         deleteLocation,
         calculateAggregation,
-        castVote,
         resetToInitialData,
       }}
     >

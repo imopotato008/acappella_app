@@ -21,8 +21,8 @@ export interface Location {
 }
 
 // 日程調整イベントのステータス
-// "open": 回答受付中, "aggregated": 集計完了, "voting": 最終投票中, "booking_pending": 予約待ち, "confirmed": 確定済み, "completed": 練習終了, "cancelled": 中止
-export type EventStatus = "open" | "aggregated" | "voting" | "booking_pending" | "confirmed" | "completed" | "cancelled";
+// "open": 回答受付中, "aggregated": 集計完了, "booking_pending": 予約待ち, "confirmed": 確定済み, "completed": 練習終了, "cancelled": 中止
+export type EventStatus = "open" | "aggregated" | "booking_pending" | "confirmed" | "completed" | "cancelled";
 
 // 日程指定方式
 export type DateType = "candidate" | "range";
@@ -39,9 +39,9 @@ export interface Event {
   endDate?: string; // "YYYY-MM-DD" (range方式)
   durationMinutes: number; // 練習時間（30分単位: 60, 90, 120, 180など）
   deadline: string; // ISO string (回答期限)
-  votingDeadline?: string; // ISO string (最終投票期限)
   status: EventStatus;
-  confirmedCandidateId?: string;
+  confirmedCandidateId?: string; // 互換用 (1件目のID)
+  confirmedCandidateIds?: string[]; // 複数確定スロットID配列
   createdAt: string;
 }
 
@@ -99,14 +99,5 @@ export interface CandidateSlot {
   partialAttendeeUserIds: string[]; // 途中参加・途中退出のメンバーID
   attendeeDetails: Record<string, AttendeeDetail>; // メンバーID -> 参加詳細
   priorityScore?: number; // 旧互換用（廃止）
-  voteCount: number; // 最終投票の得票数
-}
-
-// 最終投票型
-export interface FinalVote {
-  id: string;
-  eventId: string;
-  candidateId: string;
-  userId: string;
-  createdAt: string;
+  voteCount?: number; // 旧互換用（最終投票廃止）
 }

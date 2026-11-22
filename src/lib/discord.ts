@@ -18,8 +18,6 @@ export type DiscordNotificationType =
   | "event_created"
   | "deadline_reminder_3d"
   | "deadline_reminder_1d"
-  | "voting_started"
-  | "voting_deadline_reminder_1d"
   | "event_confirmed";
 
 export interface ScheduleNotificationPayload {
@@ -28,13 +26,12 @@ export interface ScheduleNotificationPayload {
   eventTitle: string;
   organizerNickname?: string;
   deadline?: string;
-  votingDeadline?: string;
   durationMinutes?: number;
-  candidateSummary?: string;
   confirmedDate?: string;
   confirmedTime?: string;
   confirmedLocationName?: string;
   confirmedAttendeesCount?: number;
+  confirmedSlotsSummary?: string; // 複数日程確定時のサマリー（例: 複数日の日時・場所一覧）
   eventUrl?: string;
 }
 
@@ -159,51 +156,37 @@ export async function sendScheduleNotificationToChannel(
       }
       break;
 
-    case "voting_started":
-      title = `🗳️ 【最終投票が開始されました】${payload.eventTitle}`;
-      description = `日程調整の集計が完了し、複数の最有力候補があるため最終投票を開始しました！\n下記のリンクより希望する候補に投票してください。`;
-      color = 0x8b5cf6; // Purple
-      if (payload.votingDeadline) {
-        fields.push({ name: "投票期限", value: formatJst(payload.votingDeadline), inline: true });
-      }
-      if (payload.candidateSummary) {
-        fields.push({ name: "候補一覧", value: payload.candidateSummary });
-      }
-      break;
-
-    case "voting_deadline_reminder_1d":
-      title = `🚨 【最終投票の期限は明日まで！】${payload.eventTitle}`;
-      description = `最終投票の締切が明日となりました。\nまだ投票されていない方は、忘れずに投票をお願いします！`;
-      color = 0xef4444; // Red
-      if (payload.votingDeadline) {
-        fields.push({ name: "投票期限", value: formatJst(payload.votingDeadline), inline: true });
-      }
-      break;
-
     case "event_confirmed":
       title = `🎉 【練習日程・場所が確定しました】${payload.eventTitle}`;
       description = `スタジオの予約が完了し、練習日程・場所が確定しました！メンバーの皆様はスケジュールのご確認をお願いします。`;
       color = 0x10b981; // Emerald
-      if (payload.confirmedDate && payload.confirmedTime) {
+      if (payload.confirmedSlotsSummary) {
         fields.push({
-          name: "確定日時",
-          value: `${payload.confirmedDate} ${payload.confirmedTime}`,
-          inline: true,
+          name: "確定した練習日程",
+          value: payload.confirmedSlotsSummary,
         });
-      }
-      if (payload.confirmedLocationName) {
-        fields.push({
-          name: "練習場所",
-          value: payload.confirmedLocationName,
-          inline: true,
-        });
-      }
-      if (payload.confirmedAttendeesCount !== undefined) {
-        fields.push({
-          name: "参加人数",
-          value: `${payload.confirmedAttendeesCount}名`,
-          inline: true,
-        });
+      } else {
+        if (payload.confirmedDate && payload.confirmedTime) {
+          fields.push({
+            name: "確定日時",
+            value: `${payload.confirmedDate} ${payload.confirmedTime}`,
+            inline: true,
+          });
+        }
+        if (payload.confirmedLocationName) {
+          fields.push({
+            name: "練習場所",
+            value: payload.confirmedLocationName,
+            inline: true,
+          });
+        }
+        if (payload.confirmedAttendeesCount !== undefined) {
+          fields.push({
+            name: "参加人数",
+            value: `${payload.confirmedAttendeesCount}名`,
+            inline: true,
+          });
+        }
       }
       break;
   }

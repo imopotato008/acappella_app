@@ -130,7 +130,7 @@ export default function EventRespondPage({
   if (event.status !== "open") {
     let statusText = "受付終了";
     if (event.status === "aggregated") statusText = "集計完了";
-    if (event.status === "voting") statusText = "最終投票中";
+    if (event.status === "booking_pending") statusText = "予約待ち";
     if (event.status === "confirmed") statusText = "確定済み";
     if (event.status === "completed") statusText = "練習終了";
 

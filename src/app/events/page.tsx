@@ -22,7 +22,7 @@ export default function EventsListPage() {
   const filteredEvents = events.filter((ev) => {
     if (filterStatus === "all") return true;
     if (filterStatus === "open") return ev.status === "open";
-    if (filterStatus === "voting") return ev.status === "voting";
+    if (filterStatus === "aggregated") return ev.status === "aggregated";
     if (filterStatus === "booking_pending") return ev.status === "booking_pending";
     if (filterStatus === "confirmed") return ev.status === "confirmed";
     if (filterStatus === "completed") return ev.status === "completed";
@@ -58,7 +58,7 @@ export default function EventsListPage() {
         {[
           { id: "all", label: "すべて" },
           { id: "open", label: "回答受付中" },
-          { id: "voting", label: "最終投票中" },
+          { id: "aggregated", label: "集計完了" },
           { id: "booking_pending", label: "予約待ち" },
           { id: "confirmed", label: "確定済み" },
           { id: "completed", label: "練習終了" },
@@ -106,10 +106,9 @@ export default function EventsListPage() {
                         回答受付中
                       </span>
                     )}
-                    {event.status === "voting" && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300">
-                        <Vote className="w-3 h-3" />
-                        最終投票中
+                    {event.status === "aggregated" && (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300">
+                        集計完了
                       </span>
                     )}
                     {event.status === "booking_pending" && (
