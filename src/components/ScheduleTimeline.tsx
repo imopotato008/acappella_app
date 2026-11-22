@@ -79,7 +79,7 @@ export function ScheduleTimeline({
             <Calendar className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
             <span>1. 候補日を選択:</span>
           </div>
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 custom-scrollbar">
             {availableDates.map((dateStr) => {
               const isSelected = dateStr === selectedDate;
               const dateObj = new Date(dateStr);
@@ -120,7 +120,7 @@ export function ScheduleTimeline({
             <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
             <span>2. 練習場所を選択（候補日＋場所）:</span>
           </div>
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 custom-scrollbar">
             {locationOptions.map((opt) => {
               const isSelected = opt.id === selectedLocationId;
               return (
@@ -173,8 +173,8 @@ export function ScheduleTimeline({
         </div>
 
         {/* スクロール可能なグリッドエリア */}
-        <div className="overflow-x-auto pb-3">
-          <div className="min-w-[700px] space-y-2">
+        <div className="overflow-x-auto pb-3 custom-scrollbar">
+          <div className="min-w-[850px] space-y-2">
             {/* 時間軸ヘッダー */}
             <div className="flex items-center text-[10px] font-bold text-slate-400 dark:text-slate-500 pl-28 pr-4 border-b border-slate-200 dark:border-slate-800 pb-1">
               {hours.map((h, idx) => (

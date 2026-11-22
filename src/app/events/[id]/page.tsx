@@ -774,42 +774,44 @@ export default function EventDetailPage({
 
                   {/* 回答詳細（参加可能の場合の時間帯・場所リンク） */}
                   {res && res.canAttend && res.timeSlots.length > 0 && (
-                    <div className="pl-9 space-y-1.5">
+                    <div className="pl-9 space-y-2">
                       {res.timeSlots.map((slot) => (
                         <div
                           key={slot.id}
-                          className="text-xs bg-slate-50/80 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5"
+                          className="text-xs bg-slate-50/80 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/80 overflow-x-auto custom-scrollbar"
                         >
-                          <div className="flex items-center gap-2 font-medium text-slate-800 dark:text-slate-200">
-                            <Calendar className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                            <span>{slot.date}</span>
-                            <Clock className="w-3.5 h-3.5 text-slate-400 ml-1" />
-                            <span>
-                              {slot.startTime} 〜 {slot.endTime}
-                            </span>
-                          </div>
+                          <div className="flex items-center justify-between gap-4 min-w-max">
+                            <div className="flex items-center gap-2 font-medium text-slate-800 dark:text-slate-200 shrink-0">
+                              <Calendar className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                              <span>{slot.date}</span>
+                              <Clock className="w-3.5 h-3.5 text-slate-400 ml-1 shrink-0" />
+                              <span>
+                                {slot.startTime} 〜 {slot.endTime}
+                              </span>
+                            </div>
 
-                          {/* 利用可能場所 */}
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                            {slot.locations.map((loc) => {
-                              const locationObj = locations.find((l) => l.id === loc.locationId);
-                              return (
-                                <Link
-                                  key={loc.locationId}
-                                  href={`/locations?select=${loc.locationId}`}
-                                  className="text-[11px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 px-2 py-0.5 rounded text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors inline-flex items-center gap-1"
-                                  title="クリックして場所とGoogle Mapを確認"
-                                >
-                                  {locationObj?.name || "練習場所"}
-                                  {loc.priorityRank && (
-                                    <span className="text-indigo-600 dark:text-indigo-400 font-bold ml-0.5">
-                                      (第{loc.priorityRank}希望)
-                                    </span>
-                                  )}
-                                </Link>
-                              );
-                            })}
+                            {/* 利用可能場所 */}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                              {slot.locations.map((loc) => {
+                                const locationObj = locations.find((l) => l.id === loc.locationId);
+                                return (
+                                  <Link
+                                    key={loc.locationId}
+                                    href={`/locations?select=${loc.locationId}`}
+                                    className="text-[11px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 px-2 py-0.5 rounded text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors inline-flex items-center gap-1 shrink-0 whitespace-nowrap"
+                                    title="クリックして場所とGoogle Mapを確認"
+                                  >
+                                    {locationObj?.name || "練習場所"}
+                                    {loc.priorityRank && (
+                                      <span className="text-indigo-600 dark:text-indigo-400 font-bold ml-0.5">
+                                        (第{loc.priorityRank}希望)
+                                      </span>
+                                    )}
+                                  </Link>
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
                       ))}

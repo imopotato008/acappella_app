@@ -586,8 +586,11 @@
   .min-w-0 {
     min-width: 0px;
   }
-  .min-w-\[700px\] {
-    min-width: 700px;
+  .min-w-\[850px\] {
+    min-width: 850px;
+  }
+  .min-w-max {
+    min-width: max-content;
   }
   .flex-1 {
     flex: 1;
@@ -609,9 +612,6 @@
   }
   .resize-none {
     resize: none;
-  }
-  .scrollbar-none {
-    scrollbar-width: none;
   }
   .grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
@@ -2712,6 +2712,37 @@ body {
 .dark optgroup {
   background-color: #0f172a;
   color: #cbd5e1;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 9999px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 rgba(0, 0, 0, 0.05);
+}
+.dark .custom-scrollbar {
+  scrollbar-color: #475569 rgba(255, 255, 255, 0.05);
 }
 @property --tw-space-y-reverse {
   syntax: "*";
