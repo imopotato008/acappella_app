@@ -427,7 +427,7 @@ export default function EventDetailPage({
                   <button
                     type="button"
                     onClick={handleConfirmBooking}
-                    className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all inline-flex items-center gap-1.5"
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors inline-flex items-center gap-1.5"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     予約確定 (全日程を確定済みにする)
@@ -524,8 +524,8 @@ export default function EventDetailPage({
                 event.status === "completed"
                   ? "bg-slate-50 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200"
                   : event.status === "booking_pending"
-                  ? "bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 border-amber-300 dark:border-amber-800 text-amber-950 dark:text-amber-200"
-                  : "bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200"
+                  ? "bg-amber-50/80 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-950 dark:text-amber-200"
+                  : "bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200"
               }`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -557,7 +557,7 @@ export default function EventDetailPage({
                   <button
                     type="button"
                     onClick={handleConfirmBooking}
-                    className="px-4 py-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all inline-flex items-center gap-1.5"
+                    className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors inline-flex items-center gap-1.5"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     全日程の予約確定 (確定済みにする)
@@ -854,9 +854,9 @@ export default function EventDetailPage({
             {isOrganizer && (
               <div
                 id="decision-panel"
-                className="p-5 sm:p-6 bg-gradient-to-br from-indigo-50/90 via-white to-violet-50/90 dark:from-slate-900 dark:via-slate-850 dark:to-indigo-950/50 rounded-3xl border-2 border-indigo-300 dark:border-indigo-700/80 shadow-md space-y-6 animate-in fade-in zoom-in-95"
+                className="p-5 sm:p-6 bg-slate-50 dark:bg-slate-800/60 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6 animate-in fade-in zoom-in-95"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-indigo-100 dark:border-slate-800">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-700">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
                     <div>
@@ -899,7 +899,7 @@ export default function EventDetailPage({
                     return (
                       <div
                         key={slot.id}
-                        className="bg-white dark:bg-slate-800/90 rounded-2xl p-4 sm:p-5 border border-indigo-100 dark:border-slate-700 shadow-2xs space-y-4"
+                        className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700 shadow-2xs space-y-4"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-indigo-600 text-white">
@@ -1083,7 +1083,7 @@ export default function EventDetailPage({
                   <button
                     type="button"
                     onClick={handleCommitDraftSlots}
-                    className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-700 hover:from-indigo-700 hover:to-violet-800 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-200 dark:shadow-none transition-all inline-flex items-center justify-center gap-2"
+                    className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors inline-flex items-center justify-center gap-2"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     <span>

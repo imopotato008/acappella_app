@@ -132,7 +132,7 @@ export function ScheduleTimeline({
                   onClick={() => setSelectedLocationId(opt.id)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 inline-flex items-center gap-1.5 ${
                     isSelected
-                      ? "bg-gradient-to-r from-rose-500 to-indigo-600 text-white shadow-xs"
+                      ? "bg-indigo-600 text-white shadow-xs"
                       : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                   }`}
                 >
@@ -332,7 +332,7 @@ export function ScheduleTimeline({
                           return (
                             <div
                               key={slot.id}
-                              className="absolute top-1 bottom-1 rounded-md bg-gradient-to-r from-indigo-500 to-indigo-600 text-white text-[10px] font-bold flex items-center px-2 shadow-2xs overflow-hidden truncate cursor-pointer hover:brightness-105"
+                              className="absolute top-1 bottom-1 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold flex items-center px-2 shadow-2xs overflow-hidden truncate cursor-pointer"
                               style={{
                                 left: `${leftPct}%`,
                                 width: `${widthPct}%`,
