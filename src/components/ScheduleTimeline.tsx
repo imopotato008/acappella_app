@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Event, EventResponse, Location, User } from "@/types";
-import { Calendar, Clock, MapPin, Sparkles } from "lucide-react";
+import { Calendar, Clock, MapPin, Plus, Sparkles } from "lucide-react";
 import { timeToMinutes } from "@/lib/aggregation";
 import {
   getAvailableDates,
@@ -17,6 +17,7 @@ interface ScheduleTimelineProps {
   responses: EventResponse[];
   users: User[];
   locations: Location[];
+  onAddDraftSlot?: (date: string, locationId: string) => void;
 }
 
 export function ScheduleTimeline({
@@ -24,6 +25,7 @@ export function ScheduleTimeline({
   responses,
   users,
   locations,
+  onAddDraftSlot,
 }: ScheduleTimelineProps) {
   // 候補日の一覧を取得
   const availableDates = useMemo(() => {
@@ -151,7 +153,7 @@ export function ScheduleTimeline({
 
       {/* タイムラインコンテナ */}
       <div className="bg-slate-50/60 dark:bg-slate-900/80 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 space-y-3 overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-1.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -167,9 +169,27 @@ export function ScheduleTimeline({
               </span>
             </div>
           </div>
-          <span className="text-[11px] text-slate-400 dark:text-slate-500">
-            横スクロールで時間帯を確認できます
-          </span>
+          <div className="flex items-center gap-2 flex-wrap">
+            {onAddDraftSlot && (
+              <button
+                type="button"
+                onClick={() =>
+                  onAddDraftSlot(
+                    selectedDate,
+                    selectedLocationId === "all" ? (locations[0]?.id || "") : selectedLocationId
+                  )
+                }
+                className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 shadow-2xs"
+                title="タイムラインで選択中の日付・場所を確定入力欄にセットします"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>この日程を確定入力へ追加</span>
+              </button>
+            )}
+            <span className="text-[11px] text-slate-400 dark:text-slate-500">
+              横スクロールで時間帯を確認できます
+            </span>
+          </div>
         </div>
 
         {/* スクロール可能なグリッドエリア */}

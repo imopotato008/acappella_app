@@ -225,3 +225,105 @@ export function aggregateResponses(
   };
 }
 
+/**
+ * 幹事がタイムラインを見ながら自由に指定した日時・場所から CandidateSlot を構築する
+ * （メンバーの回答データからフル参加・途中参加・不参加および共通練習時間を判定）
+ */
+export function buildCustomCandidateSlot(
+  eventId: string,
+  date: string,
+  startTime: string,
+  endTime: string,
+  locationId: string,
+  responses: EventResponse[],
+  slotId?: string
+): CandidateSlot {
+  const startM = timeToMinutes(startTime);
+  const endM = timeToMinutes(endTime);
+  const attendableResponses = responses.filter((r) => r.canAttend);
+
+  const attendeeIds: string[] = [];
+  const fullAttendeeIds: string[] = [];
+  const partialAttendeeIds: string[] = [];
+  const attendeeDetails: Record<string, AttendeeDetail> = {};
+
+  for (const res of attendableResponses) {
+    const candidateSlotsForUser = res.timeSlots.filter(
+      (slot) =>
+        slot.date === date &&
+        (!locationId || locationId === "all" || slot.locations.some((l) => l.locationId === locationId))
+    );
+
+    let bestOverlapMinutes = 0;
+    let bestDetail: AttendeeDetail | null = null;
+
+    for (const slot of candidateSlotsForUser) {
+      const slotStart = timeToMinutes(slot.startTime);
+      const slotEnd = timeToMinutes(slot.endTime);
+
+      const overlapStartM = Math.max(startM, slotStart);
+      const overlapEndM = Math.min(endM, slotEnd);
+      const overlapM = overlapEndM - overlapStartM;
+
+      if (overlapM >= 30) {
+        const isFull = slotStart <= startM && slotEnd >= endM;
+        const isLate = slotStart > startM && slotEnd >= endM;
+        const isEarly = slotStart <= startM && slotEnd < endM;
+        const type = isFull ? "full" : isLate ? "late" : isEarly ? "early" : "partial";
+
+        if (
+          overlapM > bestOverlapMinutes ||
+          (overlapM === bestOverlapMinutes && isFull)
+        ) {
+          bestOverlapMinutes = overlapM;
+          bestDetail = {
+            userId: res.userId,
+            type,
+            overlapMinutes: overlapM,
+            overlapStart: minutesToTime(overlapStartM),
+            overlapEnd: minutesToTime(overlapEndM),
+          };
+        }
+      }
+    }
+
+    if (bestDetail) {
+      attendeeIds.push(res.userId);
+      attendeeDetails[res.userId] = bestDetail;
+      if (bestDetail.type === "full") {
+        fullAttendeeIds.push(res.userId);
+      } else {
+        partialAttendeeIds.push(res.userId);
+      }
+    }
+  }
+
+  let bandPracticeMinutes = 0;
+  if (attendeeIds.length > 0) {
+    const commonStartM = Math.max(
+      startM,
+      ...Object.values(attendeeDetails).map((d) => timeToMinutes(d.overlapStart))
+    );
+    const commonEndM = Math.min(
+      endM,
+      ...Object.values(attendeeDetails).map((d) => timeToMinutes(d.overlapEnd))
+    );
+    bandPracticeMinutes = Math.max(0, commonEndM - commonStartM);
+  }
+
+  return {
+    id: slotId || `custom-${eventId}-${date}-${startTime.replace(":", "")}-${endTime.replace(":", "")}-${locationId || "loc"}-${Math.random().toString(36).substring(2, 6)}`,
+    eventId,
+    date,
+    startTime,
+    endTime,
+    locationId,
+    attendeeUserIds: attendeeIds,
+    attendeeCount: attendeeIds.length,
+    bandPracticeMinutes,
+    fullAttendeeUserIds: fullAttendeeIds,
+    partialAttendeeUserIds: partialAttendeeIds,
+    attendeeDetails,
+  };
+}
+

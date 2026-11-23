@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   aggregateResponses,
+  buildCustomCandidateSlot,
   minutesToTime,
   timeToMinutes,
 } from "../aggregation";
@@ -611,6 +612,87 @@ describe("集計アルゴリズム (aggregateResponses)", () => {
     expect(targetSlot.attendeeDetails["u-early"].overlapEnd).toBe("14:30");
     expect(targetSlot.attendeeDetails["u-partial"].type).toBe("partial");
     expect(targetSlot.attendeeDetails["u-partial"].overlapMinutes).toBe(60);
+  });
+
+  describe("幹事自由指定スロット生成 (buildCustomCandidateSlot)", () => {
+    const responses: EventResponse[] = [
+      {
+        id: "res-1",
+        eventId: "ev-test",
+        userId: "ken",
+        canAttend: true,
+        timeSlots: [
+          {
+            id: "s1",
+            date: "2026-12-05",
+            startTime: "13:00",
+            endTime: "18:00",
+            locations: [{ locationId: "loc-1" }],
+          },
+        ],
+        updatedAt: "2026-11-08",
+      },
+      {
+        id: "res-2",
+        eventId: "ev-test",
+        userId: "misaki",
+        canAttend: true,
+        timeSlots: [
+          {
+            id: "s2",
+            date: "2026-12-05",
+            startTime: "14:00",
+            endTime: "17:00",
+            locations: [{ locationId: "loc-1" }, { locationId: "loc-2" }],
+          },
+        ],
+        updatedAt: "2026-11-08",
+      },
+      {
+        id: "res-3",
+        eventId: "ev-test",
+        userId: "shota",
+        canAttend: false,
+        timeSlots: [],
+        updatedAt: "2026-11-08",
+      },
+    ];
+
+    it("幹事が指定した日時・場所で参加人数およびフル/途中参加が正しく判定される", () => {
+      const slot = buildCustomCandidateSlot(
+        "ev-test",
+        "2026-12-05",
+        "13:00",
+        "16:00",
+        "loc-1",
+        responses,
+        "custom-1"
+      );
+
+      expect(slot.id).toBe("custom-1");
+      expect(slot.date).toBe("2026-12-05");
+      expect(slot.startTime).toBe("13:00");
+      expect(slot.endTime).toBe("16:00");
+      expect(slot.locationId).toBe("loc-1");
+      expect(slot.attendeeCount).toBe(2);
+      expect(slot.fullAttendeeUserIds).toContain("ken");
+      expect(slot.partialAttendeeUserIds).toContain("misaki");
+      expect(slot.attendeeDetails["misaki"].type).toBe("late");
+      expect(slot.attendeeDetails["misaki"].overlapStart).toBe("14:00");
+    });
+
+    it("場所が合致しない場合は不参加となる", () => {
+      const slot = buildCustomCandidateSlot(
+        "ev-test",
+        "2026-12-05",
+        "13:00",
+        "16:00",
+        "loc-other",
+        responses
+      );
+
+      expect(slot.attendeeCount).toBe(0);
+    });
   });
 });
 

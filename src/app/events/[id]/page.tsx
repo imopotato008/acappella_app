@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/AppContext";
@@ -16,6 +16,7 @@ import {
   LayoutGrid,
   List,
   MapPin,
+  Plus,
   RefreshCw,
   Settings,
   Sparkles,
@@ -27,6 +28,29 @@ import {
 import { CandidateSlot, EventStatus } from "@/types";
 import { ScheduleTimeline } from "@/components/ScheduleTimeline";
 import { formatWebUrl } from "@/lib/location";
+import {
+  buildCustomCandidateSlot,
+  minutesToTime,
+  timeToMinutes,
+} from "@/lib/aggregation";
+
+// 30分単位の時刻セレクター用選択肢 (07:00 〜 24:00)
+const TIME_OPTIONS: string[] = [];
+for (let h = 7; h <= 24; h++) {
+  const hh = String(h).padStart(2, "0");
+  TIME_OPTIONS.push(`${hh}:00`);
+  if (h < 24) {
+    TIME_OPTIONS.push(`${hh}:30`);
+  }
+}
+
+interface DraftSlotItem {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  locationId: string;
+}
 
 export default function EventDetailPage({
   params,
@@ -44,7 +68,7 @@ export default function EventDetailPage({
     responses,
     locations,
     candidateSlots,
-    calculateAggregation,
+    confirmCustomSlots,
     deleteEvent,
     updateEventStatus,
     updateEventDeadline,
@@ -55,11 +79,6 @@ export default function EventDetailPage({
   // 回答期限変更モーダル状態
   const [isDeadlineModalOpen, setIsDeadlineModalOpen] = useState(false);
   const [editDeadlineInput, setEditDeadlineInput] = useState("");
-
-  // 複数日程確定モーダル状態
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [targetDaysCount, setTargetDaysCount] = useState<number>(1);
-  const [selectedSlotIds, setSelectedSlotIds] = useState<string[]>([]);
 
   const event = events.find((e) => e.id === eventId);
 
@@ -91,6 +110,38 @@ export default function EventDetailPage({
       : c.id === event.confirmedCandidateId
   );
 
+  // 幹事用の自由設定下書きスロット一覧
+  const defaultDate =
+    event.candidateDates?.[0] ||
+    event.startDate ||
+    new Date().toISOString().slice(0, 10);
+  const defaultStart = "13:00";
+  const defaultEnd = minutesToTime(
+    timeToMinutes("13:00") + (event.durationMinutes || 120)
+  );
+  const defaultLocId = locations[0]?.id || "";
+
+  const [draftSlots, setDraftSlots] = useState<DraftSlotItem[]>(() => {
+    if (confirmedSlots.length > 0) {
+      return confirmedSlots.map((s) => ({
+        id: s.id,
+        date: s.date,
+        startTime: s.startTime,
+        endTime: s.endTime,
+        locationId: s.locationId,
+      }));
+    }
+    return [
+      {
+        id: `draft-${Date.now()}-1`,
+        date: defaultDate,
+        startTime: defaultStart,
+        endTime: defaultEnd,
+        locationId: defaultLocId,
+      },
+    ];
+  });
+
   // 回答期限モーダルを開く
   const handleOpenDeadlineModal = () => {
     try {
@@ -114,48 +165,111 @@ export default function EventDetailPage({
     alert("回答期限を更新しました！");
   };
 
-  // 複数日程確定モーダルを開く（最新の集計を実行して候補をセット）
-  const handleOpenConfirmModal = () => {
-    const result = calculateAggregation(event.id);
-    const cands = result.candidates;
-    const initialCount = Math.min(Math.max(1, targetDaysCount), Math.max(1, cands.length));
-    setTargetDaysCount(initialCount);
-    setSelectedSlotIds(cands.slice(0, initialCount).map((c) => c.id));
-    setIsConfirmModalOpen(true);
+  // 幹事：新しい練習日を下書きに追加
+  const handleAddDraftSlot = (
+    customDate?: string,
+    customLocId?: string,
+    customStart?: string,
+    customEnd?: string
+  ) => {
+    const newDate =
+      customDate || draftSlots[draftSlots.length - 1]?.date || defaultDate;
+    const newStart = customStart || defaultStart;
+    const newEnd =
+      customEnd ||
+      minutesToTime(
+        timeToMinutes(newStart) + (event.durationMinutes || 120)
+      );
+    const newLocId =
+      customLocId !== undefined
+        ? customLocId
+        : draftSlots[draftSlots.length - 1]?.locationId || defaultLocId;
+
+    setDraftSlots((prev) => [
+      ...prev,
+      {
+        id: `draft-${Date.now()}-${prev.length + 1}`,
+        date: newDate,
+        startTime: newStart,
+        endTime: newEnd,
+        locationId: newLocId,
+      },
+    ]);
   };
 
-  // 確定日数変更時に上位N件を自動選択
-  const handleChangeDaysCount = (newCount: number) => {
-    const validCount = Math.max(1, newCount);
-    setTargetDaysCount(validCount);
-    setSelectedSlotIds(eventCandidates.slice(0, validCount).map((c) => c.id));
+  // 幹事：下書きスロットの項目更新
+  const handleUpdateDraftSlot = (
+    index: number,
+    updates: Partial<DraftSlotItem>
+  ) => {
+    setDraftSlots((prev) =>
+      prev.map((item, idx) => (idx === index ? { ...item, ...updates } : item))
+    );
   };
 
-  // スロットのチェックボックス切り替え
-  const handleToggleSlotSelection = (slotId: string) => {
-    if (selectedSlotIds.includes(slotId)) {
-      setSelectedSlotIds(selectedSlotIds.filter((id) => id !== slotId));
-    } else {
-      setSelectedSlotIds([...selectedSlotIds, slotId]);
-    }
-  };
-
-  // 選択した日程・場所を確定（予約待ちへ進める）
-  const handleConfirmSelectedSlots = () => {
-    if (selectedSlotIds.length === 0) {
-      alert("確定する練習候補枠を1つ以上選択してください。");
+  // 幹事：下書きスロットの削除
+  const handleRemoveDraftSlot = (index: number) => {
+    if (draftSlots.length <= 1) {
+      alert("練習日程は最低1日分設定してください。");
       return;
     }
-    if (
-      confirm(
-        `選択した ${selectedSlotIds.length} 日分の練習日程を確定（予約待ちへ遷移）しますか？\n決定後、スタジオの予約手続きに進みます。`
-      )
-    ) {
-      updateEventStatus(event.id, "booking_pending", selectedSlotIds);
-      setIsConfirmModalOpen(false);
-      alert(
-        `練習日程（${selectedSlotIds.length}日分）を決定し、「予約待ち」に移行しました！スタジオの予約を行ってください。`
+    setDraftSlots((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  // 幹事：タイムライン決定パネルへスムーズスクロール
+  const handleScrollToDecisionPanel = () => {
+    setViewMode("timeline");
+    setTimeout(() => {
+      document
+        .getElementById("decision-panel")
+        ?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
+
+  // 幹事：入力した日程で決定・保存（予約待ちへ進める）
+  const handleCommitDraftSlots = () => {
+    if (draftSlots.length === 0) {
+      alert("確定する練習日程を1日以上追加してください。");
+      return;
+    }
+
+    // 開始 < 終了チェック
+    for (let i = 0; i < draftSlots.length; i++) {
+      const s = draftSlots[i];
+      if (!s.date) {
+        alert(`第${i + 1}練習日の日付を入力してください。`);
+        return;
+      }
+      if (timeToMinutes(s.startTime) >= timeToMinutes(s.endTime)) {
+        alert(
+          `第${i + 1}練習日（${s.date}）の終了時刻は開始時刻より後に設定してください。`
+        );
+        return;
+      }
+    }
+
+    const promptMsg =
+      event.status === "booking_pending"
+        ? `確定日程（全${draftSlots.length}日分）を更新しますか？`
+        : `タイムライン上で設定した ${draftSlots.length} 日分の練習日程を確定（予約待ちへ遷移）しますか？\n決定後、スタジオの予約手続きに進みます。`;
+
+    if (confirm(promptMsg)) {
+      const builtSlots = draftSlots.map((s) =>
+        buildCustomCandidateSlot(
+          event.id,
+          s.date,
+          s.startTime,
+          s.endTime,
+          s.locationId,
+          eventResponses,
+          s.id.startsWith("draft-") ? undefined : s.id
+        )
       );
+      confirmCustomSlots(event.id, builtSlots);
+      alert(
+        `練習日程（${builtSlots.length}日分）を決定し、「予約待ち」に移行しました！スタジオの予約を行ってください。`
+      );
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -325,11 +439,11 @@ export default function EventDetailPage({
                 {isOrganizer ? (
                   <button
                     type="button"
-                    onClick={handleOpenConfirmModal}
+                    onClick={handleScrollToDecisionPanel}
                     className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition-colors inline-flex items-center gap-1.5"
                   >
                     <Sparkles className="w-4 h-4" />
-                    確定日程を決定する (複数日程対応)
+                    タイムラインから確定日程を決める
                   </button>
                 ) : (
                   <span className="px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold text-xs inline-flex items-center gap-1.5 border border-blue-200 dark:border-blue-800">
@@ -622,27 +736,26 @@ export default function EventDetailPage({
               回答期限を変更する
             </button>
 
-            {/* 回答受付中の幹事アクション */}
-            {event.status === "open" && (
+            {/* 確定日程決定・再編集ボタン（タイムライン入力へスムーズスクロール） */}
+            {(event.status === "open" || event.status === "aggregated") && (
               <button
                 type="button"
-                onClick={handleOpenConfirmModal}
+                onClick={handleScrollToDecisionPanel}
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors inline-flex items-center gap-1.5"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                回答受付を終了し、候補枠を集計・日程確定へ
+                タイムラインから確定日程を決める
               </button>
             )}
 
-            {/* 集計完了時の幹事アクション */}
-            {event.status === "aggregated" && (
+            {event.status === "booking_pending" && (
               <button
                 type="button"
-                onClick={handleOpenConfirmModal}
+                onClick={handleScrollToDecisionPanel}
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors inline-flex items-center gap-1.5"
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                確定日程を決定する (複数日程対応)
+                <Edit3 className="w-3.5 h-3.5" />
+                確定日程を修正・再設定する
               </button>
             )}
 
@@ -681,7 +794,7 @@ export default function EventDetailPage({
       )}
 
       {/* メンバー回答状況セクション (全員公開) */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 space-y-5">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <Users className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
@@ -724,12 +837,265 @@ export default function EventDetailPage({
 
         {/* タイムライン並列ビュー */}
         {viewMode === "timeline" ? (
-          <ScheduleTimeline
-            event={event}
-            responses={eventResponses}
-            users={users}
-            locations={locations}
-          />
+          <div className="space-y-6">
+            <ScheduleTimeline
+              event={event}
+              responses={eventResponses}
+              users={users}
+              locations={locations}
+              onAddDraftSlot={
+                isOrganizer
+                  ? (date, locId) => handleAddDraftSlot(date, locId)
+                  : undefined
+              }
+            />
+
+            {/* 幹事専用：タイムラインを見ながら自由に確定日程を決定するパネル */}
+            {isOrganizer && (
+              <div
+                id="decision-panel"
+                className="p-5 sm:p-6 bg-gradient-to-br from-indigo-50/90 via-white to-violet-50/90 dark:from-slate-900 dark:via-slate-850 dark:to-indigo-950/50 rounded-3xl border-2 border-indigo-300 dark:border-indigo-700/80 shadow-md space-y-6 animate-in fade-in zoom-in-95"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-indigo-100 dark:border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                          練習日程の決定（幹事専用メニュー）
+                        </h3>
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold">
+                          {draftSlots.length}日分を設定中
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        上のタイムラインを見ながら、確定したい日程・時間帯・場所を自由に設定してください。何日分でも追加できます。
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddDraftSlot()}
+                    className="px-3.5 py-1.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-2xs self-start sm:self-auto shrink-0"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    練習日を追加する
+                  </button>
+                </div>
+
+                {/* 各日程の設定カード一覧 */}
+                <div className="space-y-4">
+                  {draftSlots.map((slot, idx) => {
+                    const calculated = buildCustomCandidateSlot(
+                      event.id,
+                      slot.date,
+                      slot.startTime,
+                      slot.endTime,
+                      slot.locationId,
+                      eventResponses
+                    );
+
+                    return (
+                      <div
+                        key={slot.id}
+                        className="bg-white dark:bg-slate-800/90 rounded-2xl p-4 sm:p-5 border border-indigo-100 dark:border-slate-700 shadow-2xs space-y-4"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-indigo-600 text-white">
+                            第{idx + 1}練習日
+                          </span>
+                          {draftSlots.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveDraftSlot(idx)}
+                              className="text-xs text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 font-medium inline-flex items-center gap-1 p-1"
+                              title="この練習日を削除"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              削除
+                            </button>
+                          )}
+                        </div>
+
+                        {/* 入力グリッド（日付・開始・終了・場所） */}
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                          {/* 日付 */}
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-indigo-500" />
+                              日付
+                            </label>
+                            <input
+                              type="date"
+                              required
+                              value={slot.date}
+                              onChange={(e) =>
+                                handleUpdateDraftSlot(idx, {
+                                  date: e.target.value,
+                                })
+                              }
+                              className="w-full px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500"
+                            />
+                          </div>
+
+                          {/* 開始時間 */}
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-indigo-500" />
+                              開始時刻
+                            </label>
+                            <select
+                              value={slot.startTime}
+                              onChange={(e) =>
+                                handleUpdateDraftSlot(idx, {
+                                  startTime: e.target.value,
+                                })
+                              }
+                              className="w-full px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500"
+                            >
+                              {TIME_OPTIONS.slice(0, -1).map((t) => (
+                                <option key={t} value={t}>
+                                  {t}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* 終了時間 */}
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-indigo-500" />
+                              終了時刻
+                            </label>
+                            <select
+                              value={slot.endTime}
+                              onChange={(e) =>
+                                handleUpdateDraftSlot(idx, {
+                                  endTime: e.target.value,
+                                })
+                              }
+                              className="w-full px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500"
+                            >
+                              {TIME_OPTIONS.slice(1).map((t) => (
+                                <option key={t} value={t}>
+                                  {t}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* 練習場所 */}
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                              <MapPin className="w-3 h-3 text-rose-500" />
+                              練習場所
+                            </label>
+                            <select
+                              value={slot.locationId}
+                              onChange={(e) =>
+                                handleUpdateDraftSlot(idx, {
+                                  locationId: e.target.value,
+                                })
+                              }
+                              className="w-full px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500"
+                            >
+                              <option value="">未定 / 指定なし</option>
+                              {locations.map((loc) => (
+                                <option key={loc.id} value={loc.id}>
+                                  {loc.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* リアルタイム参加可能メンバー判定プレビュー */}
+                        <div className="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl space-y-2 border border-slate-200/80 dark:border-slate-800">
+                          <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300 flex-wrap gap-1">
+                            <span>
+                              参加判定: {calculated.attendeeCount} / {users.length} 名 参加可能
+                            </span>
+                            <span className="text-slate-500 dark:text-slate-400 font-normal">
+                              (フル参加: {calculated.fullAttendeeUserIds.length}名
+                              {calculated.partialAttendeeUserIds.length > 0 && (
+                                <span className="font-bold text-amber-700 dark:text-amber-400 ml-1">
+                                  / 途中参加: {calculated.partialAttendeeUserIds.length}名
+                                </span>
+                              )})
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap gap-1.5">
+                            {users.map((u) => {
+                              const isFull = calculated.fullAttendeeUserIds.includes(u.id);
+                              const isPartial = calculated.partialAttendeeUserIds.includes(u.id);
+                              const detail = calculated.attendeeDetails[u.id];
+
+                              return (
+                                <span
+                                  key={u.id}
+                                  className={`text-xs px-2 py-0.5 rounded-lg font-medium inline-flex items-center gap-1 border shadow-2xs ${
+                                    isFull
+                                      ? "bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200"
+                                      : isPartial
+                                      ? "bg-amber-50 dark:bg-amber-950/60 border-amber-300 dark:border-amber-800 text-amber-950 dark:text-amber-200"
+                                      : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500"
+                                  }`}
+                                >
+                                  <span>{u.nickname}</span>
+                                  {isFull && (
+                                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+                                      (フル)
+                                    </span>
+                                  )}
+                                  {isPartial && detail && (
+                                    <span className="text-[10px] text-amber-700 dark:text-amber-300 font-bold">
+                                      ({detail.overlapStart}〜{detail.overlapEnd})
+                                    </span>
+                                  )}
+                                  {!isFull && !isPartial && (
+                                    <span className="text-[10px]">
+                                      (不参加)
+                                    </span>
+                                  )}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* 決定ボタン */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleAddDraftSlot()}
+                    className="px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-1.5 self-start sm:self-auto"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    さらに別の練習日を追加
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleCommitDraftSlots}
+                    className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-700 hover:from-indigo-700 hover:to-violet-800 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-200 dark:shadow-none transition-all inline-flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>
+                      {event.status === "booking_pending"
+                        ? `入力した ${draftSlots.length} 日分で確定日程を更新する`
+                        : `入力した ${draftSlots.length} 日分で決定する（予約待ちへ進む）`}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         ) : (
           /* 従来のリスト表示 */
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -884,144 +1250,6 @@ export default function EventDetailPage({
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* 複数日程確定モーダル */}
-      {isConfirmModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full p-6 space-y-5 border border-slate-200 dark:border-slate-800 shadow-xl my-8 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
-                    確定日程を決定する（複数日程対応）
-                  </h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    確定したい練習日数を選び、候補枠から決定する日程を選択してください。
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsConfirmModalOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* 確定日数セレクター */}
-            <div className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                  確定する練習日数
-                </label>
-                <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-                  選択中: {selectedSlotIds.length} 日 / 目標: {targetDaysCount} 日
-                </span>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                {[1, 2, 3, 4, 5].map((num) => (
-                  <button
-                    key={num}
-                    type="button"
-                    onClick={() => handleChangeDaysCount(num)}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                      targetDaysCount === num
-                        ? "bg-indigo-600 text-white shadow-xs shadow-indigo-200"
-                        : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-400"
-                    }`}
-                  >
-                    {num}日分
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 候補スロット一覧 */}
-            <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
-                候補枠一覧（参加可能人数の多い順）
-              </label>
-              {eventCandidates.length === 0 ? (
-                <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-center text-xs text-slate-500">
-                  集計された候補枠がまだありません。
-                </div>
-              ) : (
-                eventCandidates.map((slot, index) => {
-                  const loc = locations.find((l) => l.id === slot.locationId);
-                  const isChecked = selectedSlotIds.includes(slot.id);
-
-                  return (
-                    <div
-                      key={slot.id}
-                      onClick={() => handleToggleSlotSelection(slot.id)}
-                      className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${
-                        isChecked
-                          ? "bg-indigo-50/80 dark:bg-indigo-950/60 border-indigo-500 dark:border-indigo-500 shadow-2xs"
-                          : "bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => {}} // onClick on parent handles toggle
-                        className="mt-1 h-4 w-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-600 cursor-pointer"
-                      />
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center justify-between gap-2 flex-wrap">
-                          <span className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-                            <span className="text-[10px] px-1.5 py-0.2 rounded font-bold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                              第{index + 1}候補
-                            </span>
-                            {slot.date} {slot.startTime} 〜 {slot.endTime}
-                          </span>
-                          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                            {slot.attendeeCount} 名 参加可能
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-rose-500 shrink-0" />
-                          <span>{loc?.name || "未定"}</span>
-                          {slot.partialAttendeeUserIds && slot.partialAttendeeUserIds.length > 0 && (
-                            <span className="text-amber-700 dark:text-amber-400 ml-2">
-                              (フル: {slot.fullAttendeeUserIds?.length ?? slot.attendeeCount}名 / 途中: {slot.partialAttendeeUserIds.length}名)
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-
-            {/* モーダル下部アクション */}
-            <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                {selectedSlotIds.length} 日分の日程を選択中
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsConfirmModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                >
-                  キャンセル
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmSelectedSlots}
-                  disabled={selectedSlotIds.length === 0}
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white shadow-xs transition-colors"
-                >
-                  選択した {selectedSlotIds.length} 日分で決定 (予約待ちへ)
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       )}

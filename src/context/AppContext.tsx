@@ -71,6 +71,7 @@ interface AppContextType {
     candidates: CandidateSlot[];
     autoConfirmed: boolean;
   };
+  confirmCustomSlots: (eventId: string, slots: CandidateSlot[]) => void;
 
   resetToInitialData: () => void;
 }
@@ -803,6 +804,34 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return result;
   };
 
+  // 幹事による自由指定確定日程の登録・保存
+  const confirmCustomSlots = (eventId: string, slots: CandidateSlot[]) => {
+    if (slots.length === 0) return;
+
+    // 候補枠一覧（candidateSlots）を更新・追加保存
+    setCandidateSlots((prev) => {
+      const existing = prev[eventId] || [];
+      const map = new Map<string, CandidateSlot>();
+      existing.forEach((s) => map.set(s.id, s));
+      slots.forEach((s) => map.set(s.id, s));
+      const merged = Array.from(map.values());
+
+      supabase
+        .from("candidate_slots")
+        .upsert({
+          event_id: eventId,
+          slots: merged,
+          updated_at: new Date().toISOString(),
+        })
+        .then();
+
+      return { ...prev, [eventId]: merged };
+    });
+
+    const slotIds = slots.map((s) => s.id);
+    updateEventStatus(eventId, "booking_pending", slotIds);
+  };
+
   // （互換性のためインターフェースを維持）
   const resetToInitialData = () => {
     logout();
@@ -831,6 +860,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         updateLocation,
         deleteLocation,
         calculateAggregation,
+        confirmCustomSlots,
         resetToInitialData,
       }}
     >
